@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Core */
+  --bg:          #0d1117;
+  --surface:     #13181f;
+  --surface-2:   #1a2029;
+  --border:      #1e2730;
+  --border-2:    #263040;
+
+  /* Text */
+  --text:        #e8ecf0;
+  --text-2:      #9aafc4;
+  --text-3:      #637d91;
+
+  /* Brand */
+  --aqua:        #27C9B6;
+  --aqua-deep:   #0E7E72;
+  --aqua-dim:    rgba(39,201,182,0.12);
+  --slate-dark:  #11161D;
+
+  /* Semantic */
+  --success:     #27C9B6;
+  --warning:     #f0a030;
+  --danger:      #e05050;
+  --ai:          #27C9B6;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Hanken Grotesk', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+code, .mono {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+
+::selection { background: rgba(39,201,182,0.2); }
