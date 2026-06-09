@@ -5,9 +5,16 @@ from app.api.routes import shipments, cases, exceptions, events, playbooks, inge
 
 app = FastAPI(title="Oviq API", version="0.1.0")
 
+origins = [
+    "http://localhost:3000",
+    "https://oviq.io",
+    "https://www.oviq.io",
+    settings.FRONTEND_URL,
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL, "http://localhost:3000"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
