@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { DashboardShell } from '@/components/layout/DashboardShell'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -41,7 +41,7 @@ function Row({ label, description, action }: { label: string; description?: stri
   )
 }
 
-export default function SettingsPage() {
+function SettingsContent() {
   const { user, signOut } = useAuth()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -281,5 +281,13 @@ export default function SettingsPage() {
         </div>
       </div>
     </DashboardShell>
+  )
+}
+
+export default function SettingsPage() {
+  return (
+    <Suspense fallback={<div style={{ background: 'var(--bg)', minHeight: '100vh' }} />}>
+      <SettingsContent />
+    </Suspense>
   )
 }
