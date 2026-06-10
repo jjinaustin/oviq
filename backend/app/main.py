@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
-from app.api.routes import shipments, cases, exceptions, events, playbooks, ingest, health, auth, billing
+from app.api.routes import shipments, cases, exceptions, events, playbooks, ingest, health, auth, billing, contact
 
 app = FastAPI(title="Oviq API", version="0.1.0")
 
@@ -23,6 +23,7 @@ app.add_middleware(
 app.include_router(health.router)
 app.include_router(auth.router,      prefix="/api/v1/auth",      tags=["auth"])
 app.include_router(billing.router,   prefix="/api/v1/billing",   tags=["billing"])
+app.include_router(contact.router,   prefix="/api/v1",           tags=["contact"])
 app.include_router(ingest.router,    prefix="/api/v1/ingest",    tags=["ingest"])
 app.include_router(shipments.router, prefix="/api/v1/shipments", tags=["shipments"])
 app.include_router(cases.router,     prefix="/api/v1/cases",     tags=["cases"])
