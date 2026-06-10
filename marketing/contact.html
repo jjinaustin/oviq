@@ -5,148 +5,81 @@
 <title>Book a Demo — Oviq</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
-
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --bg:        #0d1117;
-  --surface:   #13181f;
-  --surface-2: #1a2029;
-  --border:    #1e2730;
-  --border-2:  #263040;
-  --text:      #e8ecf0;
-  --text-2:    #7a8fa8;
-  --text-3:    #4a6070;
-  --aqua:      #27C9B6;
-  --aqua-dim:  rgba(39,201,182,0.1);
-  --slate:     #11161D;
-}
-
-html { scroll-behavior: smooth; }
-body {
-  background: var(--bg); color: var(--text);
-  font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 16px; line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
-.mono { font-family: 'JetBrains Mono', monospace; }
-
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 3rem; height: 64px;
-  background: rgba(13,17,23,0.9);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-}
-.nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-.nav-logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.025em; color: var(--text); }
-.nav-links { display: flex; align-items: center; gap: 2.5rem; }
-.nav-links a { font-size: 14px; color: var(--text-2); text-decoration: none; transition: color 0.2s; }
-.nav-links a:hover { color: var(--text); }
-.nav-links a.active { color: var(--aqua); }
-
-.btn-primary {
-  background: var(--aqua); color: var(--slate);
-  font-size: 13px; font-weight: 700;
-  padding: 9px 20px; border-radius: 7px;
-  text-decoration: none; transition: opacity 0.2s;
-  display: inline-flex; align-items: center; gap: 7px;
-}
-.btn-primary:hover { opacity: 0.88; }
-
-.btn-outline {
-  background: transparent; color: var(--text);
-  font-size: 14px; font-weight: 500;
-  padding: 11px 24px; border-radius: 8px;
-  text-decoration: none; border: 1px solid var(--border-2);
-  display: inline-flex; align-items: center; gap: 7px;
-  transition: border-color 0.2s;
-}
-.btn-outline:hover { border-color: var(--text-3); }
-
-.page-wrap { padding-top: 64px; }
-.section { padding: 7rem 3rem; }
-.section-inner { max-width: 1080px; margin: 0 auto; }
-.section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--aqua); margin-bottom: 1rem; }
-.section-h2 { font-size: clamp(28px, 3.5vw, 42px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.15; color: var(--text); margin-bottom: 1rem; }
-.section-sub { font-size: 17px; color: var(--text-2); line-height: 1.65; max-width: 500px; margin-bottom: 3.5rem; }
-
-.card {
-  padding: 1.75rem; border-radius: 12px;
-  border: 1px solid var(--border); background: var(--surface);
-  transition: border-color 0.2s;
-}
-.card:hover { border-color: var(--border-2); }
-
-.card-icon {
-  width: 38px; height: 38px; border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--aqua-dim); border: 1px solid rgba(39,201,182,0.18);
-  margin-bottom: 1.25rem;
-}
-.card h3 { font-size: 15px; font-weight: 700; color: var(--text); letter-spacing: -0.01em; margin-bottom: 6px; }
-.card p { font-size: 13px; color: var(--text-2); line-height: 1.65; }
-
-footer {
-  padding: 2.5rem 3rem;
-  border-top: 1px solid var(--border);
-  display: flex; align-items: center;
-  justify-content: space-between; flex-wrap: wrap; gap: 1rem;
-}
-.footer-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
-.footer-logo-text { font-size: 15px; font-weight: 700; letter-spacing: -0.025em; color: var(--text); }
-.footer-links { display: flex; gap: 2rem; }
-.footer-links a { font-size: 13px; color: var(--text-3); text-decoration: none; transition: color 0.2s; }
-.footer-links a:hover { color: var(--text-2); }
-.footer-copy { font-size: 12px; color: var(--text-3); }
-
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.fade-up { opacity: 0; animation: fadeUp 0.5s ease forwards; }
-.d1 { animation-delay: 0.1s; } .d2 { animation-delay: 0.2s; }
-.d3 { animation-delay: 0.32s; } .d4 { animation-delay: 0.46s; }
-
-.contact-wrap { min-height: calc(100vh - 64px); display: grid; grid-template-columns: 1fr 1fr; }
-.contact-left { padding: 5rem 4rem; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; justify-content: center; }
-.contact-left h1 { font-size: clamp(30px,3.5vw,44px); font-weight:800; letter-spacing:-0.035em; line-height:1.15; color:var(--text); margin-bottom:1rem; }
-.contact-left h1 em { font-style:normal; color:var(--aqua); }
-.contact-left > p { font-size:16px; color:var(--text-2); line-height:1.7; margin-bottom:2.5rem; max-width:400px; }
-.contact-points { display:flex; flex-direction:column; gap:16px; }
-.contact-point { display:flex; align-items:flex-start; gap:14px; }
-.contact-point-icon { width:36px; height:36px; border-radius:8px; flex-shrink:0; background:var(--aqua-dim); border:1px solid rgba(39,201,182,0.2); display:flex; align-items:center; justify-content:center; margin-top:2px; }
-.contact-point-text h4 { font-size:14px; font-weight:600; color:var(--text); margin-bottom:2px; }
-.contact-point-text p { font-size:13px; color:var(--text-2); margin:0; }
-.contact-right { padding: 5rem 4rem; display: flex; flex-direction:column; justify-content:center; }
-.contact-right h2 { font-size:22px; font-weight:700; color:var(--text); letter-spacing:-0.02em; margin-bottom:0.5rem; }
-.contact-right > p { font-size:14px; color:var(--text-2); margin-bottom:2.5rem; }
-.form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
-.field { display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
-.field label { font-size:12px; font-weight:600; color:var(--text-2); letter-spacing:0.02em; }
-.field input, .field select, .field textarea { background:var(--surface-2); border:1px solid var(--border-2); border-radius:8px; padding:11px 14px; font-family:"Hanken Grotesk",sans-serif; font-size:14px; color:var(--text); outline:none; transition:border-color 0.2s; width:100%; }
-.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--aqua); }
-.field input::placeholder, .field textarea::placeholder { color:var(--text-3); }
-.field select { appearance:none; cursor:pointer; }
-.field textarea { resize:vertical; min-height:100px; }
-.form-row .field { margin-bottom:0; }
-.submit-btn { width:100%; padding:13px; border-radius:9px; background:var(--aqua); color:var(--slate); font-family:"Hanken Grotesk",sans-serif; font-size:15px; font-weight:700; border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:opacity 0.2s; margin-top:8px; }
-.submit-btn:hover { opacity:0.88; }
-.form-note { font-size:12px; color:var(--text-3); text-align:center; margin-top:12px; line-height:1.5; }
-.success-state { display:none; flex-direction:column; align-items:center; text-align:center; padding:3rem 0; }
-.success-icon { width:56px; height:56px; border-radius:50%; background:var(--aqua-dim); border:1px solid rgba(39,201,182,0.3); display:flex; align-items:center; justify-content:center; margin-bottom:1.5rem; }
-.success-state h3 { font-size:20px; font-weight:700; color:var(--text); margin-bottom:8px; }
-.success-state p { font-size:14px; color:var(--text-2); line-height:1.65; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--surface:#13181f;--surface-2:#1a2029;--border:#1e2730;--border-2:#263040;--text:#e8ecf0;--text-2:#9aafc4;--text-3:#4a6070;--aqua:#27C9B6;--aqua-dim:rgba(39,201,182,0.1);--slate:#11161D}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Hanken Grotesk',sans-serif;font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 3rem;height:64px;background:rgba(13,17,23,0.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo-text{font-size:18px;font-weight:700;letter-spacing:-0.025em;color:var(--text)}
+.nav-links{display:flex;align-items:center;gap:2.5rem}
+.nav-links a{font-size:14px;color:var(--text-2);text-decoration:none;transition:color 0.2s}
+.nav-links a:hover{color:var(--text)}
+.nav-links a.active{color:var(--aqua)}
+.btn-primary{background:var(--aqua);color:var(--slate);font-size:13px;font-weight:700;padding:9px 20px;border-radius:7px;text-decoration:none;transition:opacity 0.2s;display:inline-flex;align-items:center;gap:7px}
+.btn-primary:hover{opacity:0.88}
+.page-wrap{padding-top:64px;min-height:100vh}
+.contact-wrap{display:grid;grid-template-columns:1fr 1fr;min-height:calc(100vh - 64px)}
+.contact-left{padding:5rem 4rem;border-right:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;justify-content:center}
+.contact-left h1{font-size:clamp(30px,3.5vw,44px);font-weight:800;letter-spacing:-0.035em;line-height:1.15;color:var(--text);margin-bottom:1rem}
+.contact-left h1 em{font-style:normal;color:var(--aqua)}
+.contact-left>p{font-size:16px;color:var(--text-2);line-height:1.7;margin-bottom:2.5rem;max-width:400px}
+.section-label{font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--aqua);margin-bottom:1rem}
+.contact-points{display:flex;flex-direction:column;gap:16px}
+.contact-point{display:flex;align-items:flex-start;gap:14px}
+.contact-point-icon{width:36px;height:36px;border-radius:8px;flex-shrink:0;background:var(--aqua-dim);border:1px solid rgba(39,201,182,0.2);display:flex;align-items:center;justify-content:center;margin-top:2px}
+.contact-point-text h4{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px}
+.contact-point-text p{font-size:13px;color:var(--text-2);margin:0}
+.contact-right{padding:5rem 4rem;display:flex;flex-direction:column;justify-content:center}
+.contact-right h2{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.02em;margin-bottom:0.5rem}
+.contact-right>p{font-size:14px;color:var(--text-2);margin-bottom:2.5rem}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:12px;font-weight:600;color:var(--text-2);letter-spacing:0.02em}
+.field input,.field select,.field textarea{background:var(--surface-2);border:1px solid var(--border-2);border-radius:8px;padding:11px 14px;font-family:'Hanken Grotesk',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color 0.2s;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--aqua)}
+.field input::placeholder,.field textarea::placeholder{color:var(--text-3)}
+.field select{appearance:none;cursor:pointer}
+.field textarea{resize:vertical;min-height:100px}
+.form-row .field{margin-bottom:0}
+.submit-btn{width:100%;padding:13px;border-radius:9px;background:var(--aqua);color:var(--slate);font-family:'Hanken Grotesk',sans-serif;font-size:15px;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s;margin-top:8px}
+.submit-btn:hover{opacity:0.88}
+.submit-btn:disabled{opacity:0.5;cursor:not-allowed}
+.form-note{font-size:12px;color:var(--text-3);text-align:center;margin-top:12px;line-height:1.5}
+.success-state{display:none;flex-direction:column;align-items:center;text-align:center;padding:3rem 0}
+.success-icon{width:56px;height:56px;border-radius:50%;background:var(--aqua-dim);border:1px solid rgba(39,201,182,0.3);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem}
+.success-state h3{font-size:20px;font-weight:700;color:var(--text);margin-bottom:8px}
+.success-state p{font-size:14px;color:var(--text-2);line-height:1.65}
+footer{padding:2.5rem 3rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+.footer-logo-text{font-size:15px;font-weight:700;letter-spacing:-0.025em;color:var(--text)}
+.footer-links{display:flex;gap:2rem}
+.footer-links a{font-size:13px;color:var(--text-3);text-decoration:none;transition:color 0.2s}
+.footer-links a:hover{color:var(--text-2)}
+.footer-copy{font-size:12px;color:var(--text-3)}
 </style>
 </head>
 <body>
 <nav>
-  <a href="index.html" class="nav-logo"><svg width="26" height="26" viewBox="-8 -8 116 116" fill="none"><path d="M 50 8 A 42 42 0 0 1 92 50 A 42 42 0 0 1 50 92 A 42 42 0 0 1 8 50 A 42 42 0 0 1 22.5 19.5" stroke="#27C9B6" stroke-width="12" stroke-linecap="round" fill="none"/><circle cx="17.5" cy="26" r="4.8" fill="#27C9B6" opacity="0.55"/><circle cx="13.5" cy="33.5" r="3.2" fill="#27C9B6" opacity="0.30"/><circle cx="11" cy="41.5" r="1.9" fill="#27C9B6" opacity="0.13"/></svg><span class="nav-logo-text">Oviq</span></a>
-  <div class="nav-links"><a href="product.html">Product</a><a href="pricing.html">Pricing</a><a href="contact.html" class="active">Contact</a></div>
-  <a href="contact.html" class="btn-primary">Book a demo <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+  <a href="index.html" class="nav-logo">
+    <svg width="26" height="26" viewBox="-8 -8 116 116" fill="none">
+      <path d="M 50 8 A 42 42 0 0 1 92 50 A 42 42 0 0 1 50 92 A 42 42 0 0 1 8 50 A 42 42 0 0 1 22.5 19.5" stroke="#27C9B6" stroke-width="12" stroke-linecap="round" fill="none"/>
+      <circle cx="17.5" cy="26" r="4.8" fill="#27C9B6" opacity="0.55"/>
+      <circle cx="13.5" cy="33.5" r="3.2" fill="#27C9B6" opacity="0.30"/>
+      <circle cx="11" cy="41.5" r="1.9" fill="#27C9B6" opacity="0.13"/>
+    </svg>
+    <span class="nav-logo-text">Oviq</span>
+  </a>
+  <div class="nav-links">
+    <a href="product.html">Product</a>
+    <a href="pricing.html">Pricing</a>
+    <a href="contact.html" class="active">Contact</a>
+  </div>
+  <a href="contact.html" class="btn-primary">Book a demo
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </a>
 </nav>
+
 <div class="page-wrap">
   <div class="contact-wrap">
     <div class="contact-left">
@@ -155,49 +88,82 @@ footer {
       <p>30 minutes. We'll walk through a live shipment exception from detection to resolution — using your own data if you'd like.</p>
       <div class="contact-points">
         <div class="contact-point">
-          <div class="contact-point-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+          <div class="contact-point-icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
           <div class="contact-point-text"><h4>Live walkthrough</h4><p>See exception detection, case creation, AI resolution, and escalation in real time.</p></div>
         </div>
         <div class="contact-point">
-          <div class="contact-point-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+          <div class="contact-point-icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
           <div class="contact-point-text"><h4>Bring your CSV</h4><p>Upload a real export from your TMS and see Oviq detect exceptions in your actual data.</p></div>
         </div>
         <div class="contact-point">
-          <div class="contact-point-icon"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="contact-point-icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
           <div class="contact-point-text"><h4>30 minutes flat</h4><p>No pitch deck. No fluff. Just the product and your questions.</p></div>
         </div>
       </div>
     </div>
+
     <div class="contact-right">
       <h2>Request a demo</h2>
       <p>We'll follow up within one business day to schedule.</p>
       <div id="form-container">
         <div class="form-row">
-          <div class="field"><label>First name</label><input type="text" placeholder="Alex"/></div>
-          <div class="field"><label>Last name</label><input type="text" placeholder="Chen"/></div>
+          <div class="field"><label>First name</label><input type="text" id="first_name" placeholder="Alex"/></div>
+          <div class="field"><label>Last name</label><input type="text" id="last_name" placeholder="Chen"/></div>
         </div>
-        <div class="field"><label>Work email</label><input type="email" placeholder="alex@yourcompany.com"/></div>
-        <div class="field"><label>Company</label><input type="text" placeholder="Your freight brokerage or 3PL"/></div>
+        <div class="field"><label>Work email</label><input type="email" id="email" placeholder="alex@yourcompany.com"/></div>
+        <div class="field"><label>Company</label><input type="text" id="company" placeholder="Your freight brokerage or 3PL"/></div>
         <div class="field"><label>Monthly load volume</label>
-          <select><option value="" disabled selected>Select range</option><option>Under 100 loads / month</option><option>100–500 loads / month</option><option>500–2,000 loads / month</option><option>2,000–10,000 loads / month</option><option>10,000+ loads / month</option></select>
+          <select id="load_volume"><option value="" disabled selected>Select range</option><option>Under 100 loads / month</option><option>100–500 loads / month</option><option>500–2,000 loads / month</option><option>2,000–10,000 loads / month</option><option>10,000+ loads / month</option></select>
         </div>
         <div class="field"><label>TMS you're currently using</label>
-          <select><option value="" disabled selected>Select TMS</option><option>McLeod</option><option>Aljex</option><option>Ascend TMS</option><option>Turvo</option><option>Rose Rocket</option><option>Other / custom</option></select>
+          <select id="tms"><option value="" disabled selected>Select TMS</option><option>McLeod</option><option>Aljex</option><option>Ascend TMS</option><option>Turvo</option><option>Rose Rocket</option><option>Other / custom</option></select>
         </div>
-        <div class="field"><label>Anything you'd like us to know? (optional)</label><textarea placeholder="Biggest exception pain points, team size, specific questions..."></textarea></div>
-        <button class="submit-btn" onclick="handleSubmit()">Request demo <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+        <div class="field"><label>Anything you'd like us to know? (optional)</label><textarea id="notes" placeholder="Biggest exception pain points, team size, specific questions..."></textarea></div>
+        <button class="submit-btn" onclick="handleSubmit()">Request demo
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
         <p class="form-note">No spam. No sales sequences. Just a 30-minute conversation.</p>
       </div>
       <div class="success-state" id="success-state">
-        <div class="success-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="success-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
         <h3>Request received.</h3>
         <p>We'll follow up within one business day to schedule your demo.</p>
       </div>
     </div>
   </div>
 </div>
+
 <script>
-function handleSubmit() {
+async function handleSubmit() {
+  const btn = document.querySelector('.submit-btn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  const data = {
+    first_name: document.getElementById('first_name').value,
+    last_name:  document.getElementById('last_name').value,
+    email:      document.getElementById('email').value,
+    company:    document.getElementById('company').value,
+    load_volume: document.getElementById('load_volume').value,
+    tms:        document.getElementById('tms').value,
+    notes:      document.getElementById('notes').value,
+  };
+  try {
+    await fetch('https://oviq-api.onrender.com/api/v1/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+  } catch(e) {
+    console.error('Contact form error:', e);
+  }
   document.getElementById('form-container').style.display = 'none';
   const s = document.getElementById('success-state');
   s.style.display = 'flex';
