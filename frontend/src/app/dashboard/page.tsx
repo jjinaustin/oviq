@@ -16,7 +16,7 @@ function OnboardingEmpty() {
   const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'there'
   return (
     <div className="flex flex-col items-center justify-center min-h-full py-20 px-8 text-center">
-      <OviqMark size={48} color="var(--aqua)" />
+      <OviqMark size={48} />
       <h2 className="text-xl font-semibold mt-6 mb-2" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>
         Welcome, {firstName}
       </h2>
@@ -93,7 +93,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between mb-3">
                       <p className="text-xs" style={{ color: 'var(--text-3)' }}>{label}</p>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: bg }}>
-                        {Icon ? <Icon size={14} style={{ color }} /> : <OviqMark size={16} color={color} />}
+                        {Icon ? <Icon size={14} style={{ color }} /> : <OviqMark size={16} />}
                       </div>
                     </div>
                     <p className="text-2xl font-semibold" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>
