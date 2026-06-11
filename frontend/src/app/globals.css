@@ -300,6 +300,7 @@ a { text-decoration: none; }
 .feed-row:hover { background: var(--bone); }
 .feed-row .d { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); flex-shrink: 0; }
 .feed-row .d.amber { background: var(--amber); }
+.feed-row .d.red { background: var(--red); }
 .feed-row .x { flex: 1; font-size: 13px; color: var(--ink); }
 .feed-row .id { font-family: var(--mono); font-size: 11px; color: var(--faint); }
 .feed-row .time { font-family: var(--mono); font-size: 11px; color: var(--faint); width: 30px; text-align: right; }
