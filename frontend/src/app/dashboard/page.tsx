@@ -23,7 +23,7 @@ function statusBadge(status: string) {
   const map: Record<string, { label: string; cls: string }> = {
     open:          { label: 'Open',           cls: 'badge amber' },
     ai_resolving:  { label: 'AI resolving',   cls: 'badge teal' },
-    pending_human: { label: 'Needs human',    cls: 'badge amber' },
+    pending_human: { label: 'Needs human',    cls: 'badge red' },
     escalated:     { label: 'Escalated',      cls: 'badge red' },
     resolved:      { label: 'Resolved',       cls: 'badge gray' },
     closed:        { label: 'Closed',         cls: 'badge gray' },
