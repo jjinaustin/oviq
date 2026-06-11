@@ -3,12 +3,41 @@ import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Case } from '@/types'
 import { api } from '@/lib/api'
-import { Card } from '@/components/ui/Card'
-import { Button } from '@/components/ui/Button'
-import { StatusBadge, PriorityBadge } from '@/components/cases/CaseBadge'
-import { CaseTimeline } from '@/components/cases/CaseTimeline'
-import { EXCEPTION_LABELS, formatDateShort } from '@/lib/utils'
-import { ArrowLeft, Bot, Mail, CheckCircle, Truck, User } from 'lucide-react'
+import { DashboardShell } from '@/components/layout/DashboardShell'
+
+const GLYPH_SM = (
+  <svg className="glyph" viewBox="0 0 100 100" fill="none" style={{width:13,height:13}}>
+    <path d="M87.6 36.3 A40 40 0 1 1 66.9 13.7" strokeWidth="9" strokeLinecap="round" />
+    <circle cx="88.6" cy="15.2" r="8.5" />
+  </svg>
+)
+
+const GLYPH_MD = (
+  <svg className="glyph" viewBox="0 0 100 100" fill="none" style={{width:16,height:16}}>
+    <path d="M87.6 36.3 A40 40 0 1 1 66.9 13.7" strokeWidth="8" strokeLinecap="round" />
+    <circle cx="88.6" cy="15.2" r="7.6" />
+  </svg>
+)
+
+function statusBadge(status: string) {
+  const map: Record<string, { label: string; cls: string }> = {
+    open:          { label: 'Open',         cls: 'badge gray' },
+    ai_resolving:  { label: 'AI resolving', cls: 'badge teal' },
+    pending_human: { label: 'Needs human',  cls: 'badge amber' },
+    escalated:     { label: 'Escalated',    cls: 'badge red' },
+    resolved:      { label: 'Resolved',     cls: 'badge teal' },
+    closed:        { label: 'Closed',       cls: 'badge gray' },
+  }
+  const s = map[status] || { label: status, cls: 'badge gray' }
+  return <span className={s.cls}><span className="dot" />{s.label}</span>
+}
+
+function priorityBadge(priority: string) {
+  if (!priority) return null
+  const map: Record<string, string> = { critical: 'badge red', high: 'badge amber', medium: 'badge gray', low: 'badge gray' }
+  const labels: Record<string, string> = { critical: 'SEV-1', high: 'SEV-2', medium: 'SEV-3', low: 'SEV-3' }
+  return <span className={map[priority] || 'badge gray'}>{labels[priority] || priority.toUpperCase()}</span>
+}
 
 export default function CaseDetailPage() {
   const { id } = useParams()
@@ -20,12 +49,8 @@ export default function CaseDetailPage() {
     if (id) api.cases.get(id as string).then(setCase).finally(() => setLoading(false))
   }, [id])
 
-  if (loading) return (
-    <div className="p-8 text-sm" style={{ color: 'var(--text-3)' }}>Loading...</div>
-  )
-  if (!c) return (
-    <div className="p-8 text-sm" style={{ color: 'var(--text-3)' }}>Case not found</div>
-  )
+  if (loading) return <DashboardShell><header className="topbar"><div><h1>Loading…</h1></div></header><div className="content" /></DashboardShell>
+  if (!c) return <DashboardShell><header className="topbar"><div><h1>Case not found</h1></div></header><div className="content" /></DashboardShell>
 
   const shipment = c.shipments
   const events = c.events || []
@@ -33,183 +58,212 @@ export default function CaseDetailPage() {
   const tasks = c.tasks || []
   const comms = c.communications || []
   const aiActions = c.ai_actions || []
+  const isAI = c.assigned_to === 'ai' || c.status === 'ai_resolving'
+  const assigneeName = c.assigned_to && c.assigned_to !== 'ai' ? c.assigned_to : null
+  const assigneeInitials = assigneeName ? assigneeName.split(' ').map((n:string)=>n[0]).join('').slice(0,2).toUpperCase() : null
 
   return (
-    <div className="p-8 max-w-5xl">
-      {/* Back + header */}
-      <button onClick={() => router.back()}
-        className="flex items-center gap-2 text-sm mb-5 transition-colors"
-        style={{ color: 'var(--text-3)' }}>
-        <ArrowLeft size={14} /> Back to Cases
-      </button>
-
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-xl font-semibold" style={{ color: 'var(--text)' }}>{c.title}</h1>
-          <div className="flex items-center gap-3 mt-2">
-            <StatusBadge status={c.status} />
-            <PriorityBadge priority={c.priority} />
-            {c.assigned_to === 'ai'
-              ? <span className="flex items-center gap-1 text-xs text-violet-400"><Bot size={12} /> Assigned to AI</span>
-              : <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-3)' }}><User size={12} /> {c.assigned_to || 'Unassigned'}</span>
-            }
-          </div>
+    <DashboardShell>
+      <header className="topbar">
+        <button className="back" onClick={() => router.back()}>
+          <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:15,height:15,stroke:'currentColor'}}><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back to Cases
+        </button>
+        <div className="topbar-right">
+          {isAI && <span className="status-pill"><span className="dot" /> Oviq is resolving this</span>}
+          {c.status !== 'resolved' && c.status !== 'closed' && (
+            <button className="btn btn-primary btn-sm" onClick={async () => {
+              await api.cases.resolve(c.id, 'Manually resolved')
+              setCase({ ...c, status: 'resolved' })
+            }}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" style={{width:14,height:14}}><polyline points="20 6 9 17 4 12"/></svg>
+              Mark resolved
+            </button>
+          )}
         </div>
-        {c.status !== 'resolved' && (
-          <Button variant="primary" size="sm" onClick={async () => {
-            await api.cases.resolve(c.id, 'Manually resolved')
-            setCase({ ...c, status: 'resolved' })
-          }}>
-            <CheckCircle size={14} /> Mark Resolved
-          </Button>
-        )}
-      </div>
+      </header>
 
-      <div className="grid grid-cols-3 gap-5">
-        {/* Left: timeline */}
-        <div className="col-span-2 space-y-5">
+      <div className="content">
+        <div className="case-wrap">
+          <div className="case-head">
+            <div>
+              <h2>{c.title}</h2>
+              <div className="case-meta">
+                {statusBadge(c.status)}
+                {priorityBadge(c.priority)}
+                <span className="case-assigned">
+                  {isAI
+                    ? <><span className="a-ai">{GLYPH_SM}</span> Assigned to Oviq</>
+                    : assigneeName
+                  }
+                </span>
+                <span className="mono" style={{fontSize:12,color:'var(--faint)'}}>
+                  #{(c as any).shipment_ref || c.id.slice(0,8)} · opened {c.created_at ? new Date(c.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ''}
+                </span>
+              </div>
+            </div>
+          </div>
 
-          {/* Timeline */}
-          <Card className="p-5">
-            <h2 className="text-sm font-medium mb-4" style={{ color: 'var(--text)' }}>Timeline</h2>
-            <CaseTimeline events={events} />
-          </Card>
+          <div className="case-grid">
+            {/* LEFT */}
+            <div className="case-col">
 
-          {/* Communications */}
-          {comms.length > 0 && (
-            <Card className="p-5">
-              <h2 className="text-sm font-medium mb-4" style={{ color: 'var(--text)' }}>Communications</h2>
-              <div className="space-y-3">
-                {comms.map(m => (
-                  <div key={m.id} className="rounded-md p-3 border"
-                    style={{ background: 'var(--surface-2)', borderColor: 'var(--border)' }}>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <div className="flex items-center gap-2">
-                        <Mail size={12} style={{ color: 'var(--text-3)' }} />
-                        <span className="text-xs font-medium" style={{ color: 'var(--text)' }}>
+              {/* Timeline */}
+              {events.length > 0 && (
+                <div className="case-card">
+                  <h3>
+                    <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    Timeline
+                  </h3>
+                  <div className="tl">
+                    {events.map((ev, i) => (
+                      <div key={ev.id || i} className="tl-item">
+                        <div className="tl-mark">
+                          <span className={`d ${ev.actor === 'ai' || ev.actor === 'system' ? '' : 'gray'}`} />
+                          {i < events.length - 1 && <span className="line" />}
+                        </div>
+                        <div className="tl-body">
+                          <div className="t">{(ev as any).description || ev.event_type?.replace(/_/g,' ')}</div>
+                          <div className="meta">
+                            {ev.created_at ? new Date(ev.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ''}
+                            {ev.actor === 'ai' && (
+                              <span className="mini-ai">
+                                {GLYPH_SM} Oviq
+                              </span>
+                            )}
+                            {(ev as any).pending && <> · pending</>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Communications */}
+              {comms.length > 0 && (
+                <div className="case-card">
+                  <h3>
+                    <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg>
+                    Communications
+                  </h3>
+                  {comms.map(m => (
+                    <div key={m.id} className="comm">
+                      <div className="ch">
+                        <span className="subj">
+                          <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:13,height:13,stroke:'var(--faint)',flexShrink:0}}><rect x="3" y="5" width="18" height="14" rx="2"/><polyline points="3 7 12 13 21 7"/></svg>
                           {m.subject || '(no subject)'}
                         </span>
+                        <span className="who">{m.participant_type}</span>
                       </div>
-                      <span className="text-xs capitalize px-2 py-0.5 rounded"
-                        style={{ background: 'var(--border)', color: 'var(--text-3)' }}>
-                        {m.participant_type}
-                      </span>
+                      <div className="body">{m.body}</div>
                     </div>
-                    <p className="text-xs whitespace-pre-wrap" style={{ color: 'var(--text-2)' }}>
-                      {m.body}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
+                  ))}
+                </div>
+              )}
 
-          {/* Tasks */}
-          {tasks.length > 0 && (
-            <Card className="p-5">
-              <h2 className="text-sm font-medium mb-4" style={{ color: 'var(--text)' }}>Tasks</h2>
-              <div className="space-y-2">
-                {tasks.map(t => (
-                  <div key={t.id} className="flex items-center gap-3 py-2 border-b last:border-0"
-                    style={{ borderColor: 'var(--border)' }}>
-                    <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                      t.status === 'completed' ? 'bg-emerald-400' :
-                      t.status === 'failed' ? 'bg-red-400' : 'bg-teal-600'
-                    }`} />
-                    <span className="text-sm flex-1" style={{ color: 'var(--text)' }}>{t.title}</span>
-                    <span className="text-xs flex items-center gap-1"
-                      style={{ color: t.owner === 'ai' ? '#7b5af6' : 'var(--text-3)' }}>
-                      {t.owner === 'ai' ? <Bot size={11} /> : <User size={11} />}
-                      {t.owner}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-        </div>
-
-        {/* Right: metadata */}
-        <div className="space-y-5">
-
-          {/* Shipment */}
-          {shipment && (
-            <Card className="p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <Truck size={14} style={{ color: 'var(--text-3)' }} />
-                <h2 className="text-sm font-medium" style={{ color: 'var(--text)' }}>Shipment</h2>
-              </div>
-              <div className="space-y-2.5">
-                {[
-                  ['Load ID', shipment.load_id],
-                  ['Customer', shipment.customer_name],
-                  ['Carrier', shipment.carrier_name],
-                  ['Origin', shipment.origin],
-                  ['Destination', shipment.destination],
-                  ['Pickup', formatDateShort(shipment.pickup_scheduled)],
-                  ['Delivery', formatDateShort(shipment.delivery_scheduled)],
-                  ['Status', shipment.status],
-                ].map(([label, value]) => (
-                  <div key={label} className="flex justify-between gap-2">
-                    <span className="text-xs" style={{ color: 'var(--text-3)' }}>{label}</span>
-                    <span className="text-xs text-right" style={{ color: 'var(--text-2)' }}>{value || '—'}</span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-
-          {/* Exceptions */}
-          {exceptions.length > 0 && (
-            <Card className="p-5">
-              <h2 className="text-sm font-medium mb-4" style={{ color: 'var(--text)' }}>Exceptions</h2>
-              <div className="space-y-2">
-                {exceptions.map(e => (
-                  <div key={e.id} className="flex items-center justify-between">
-                    <span className="text-xs" style={{ color: 'var(--text-2)' }}>
-                      {EXCEPTION_LABELS[e.exception_type] || e.exception_type}
-                    </span>
-                    <span className={`text-xs ${e.resolved ? 'text-emerald-400' : 'text-teal-600'}`}>
-                      {e.resolved ? 'Resolved' : 'Active'}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          )}
-
-          {/* AI Actions */}
-          {aiActions.length > 0 && (
-            <Card className="p-5">
-              <div className="flex items-center gap-2 mb-4">
-                <Bot size={14} className="text-violet-400" />
-                <h2 className="text-sm font-medium" style={{ color: 'var(--text)' }}>AI Actions</h2>
-              </div>
-              <div className="space-y-2">
-                {aiActions.map(a => (
-                  <div key={a.id}>
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs" style={{ color: 'var(--text-2)' }}>
-                        {a.action_type.replace(/_/g, ' ')}
-                      </span>
-                      <span className={`text-xs ${
-                        a.status === 'executed' ? 'text-emerald-400' :
-                        a.status === 'failed' ? 'text-red-400' : 'text-teal-600'
-                      }`}>{a.status}</span>
-                    </div>
-                    {a.confidence_score && (
-                      <div className="mt-1 w-full rounded-full h-0.5" style={{ background: 'var(--border)' }}>
-                        <div className="h-0.5 rounded-full bg-violet-400"
-                          style={{ width: `${a.confidence_score * 100}%` }} />
+              {/* Tasks */}
+              {tasks.length > 0 && (
+                <div className="case-card">
+                  <h3>
+                    <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    Tasks
+                  </h3>
+                  {tasks.map(t => {
+                    const taskOwner = t.owner
+                    const isAITask = taskOwner === 'ai'
+                    const ownerInitials = !isAITask && taskOwner ? taskOwner.split(' ').map((n:string)=>n[0]).join('').slice(0,2).toUpperCase() : null
+                    return (
+                      <div key={t.id} className="task">
+                        <span className={`d ${t.status === 'completed' ? 'done' : t.status === 'failed' ? 'failed' : 'pending'}`} />
+                        <span className="t">{t.title}</span>
+                        <span className={`own ${isAITask ? 'ai' : ''}`}>
+                          {isAITask
+                            ? <>{GLYPH_SM} Oviq</>
+                            : <><svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{width:12,height:12,stroke:'currentColor'}}><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> {taskOwner}</>
+                          }
+                        </span>
                       </div>
-                    )}
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* RIGHT */}
+            <div className="case-col">
+
+              {/* Shipment */}
+              {shipment && (
+                <div className="case-card">
+                  <h3>
+                    <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    Shipment
+                  </h3>
+                  {[
+                    ['Load ID', shipment.load_id],
+                    ['Customer', shipment.customer_name],
+                    ['Carrier', shipment.carrier_name],
+                    ['Origin', shipment.origin],
+                    ['Destination', shipment.destination],
+                    ['Pickup', shipment.pickup_scheduled ? new Date(shipment.pickup_scheduled).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}) : '—'],
+                    ['Delivery', shipment.delivery_scheduled ? new Date(shipment.delivery_scheduled).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}) : '—'],
+                  ].map(([k, v]) => (
+                    <div key={k} className="mrow">
+                      <span className="k">{k}</span>
+                      <span className="v">{v || '—'}</span>
+                    </div>
+                  ))}
+                  <div className="mrow bd">
+                    <span className="k">Status</span>
+                    <span className="v">
+                      <span className="badge amber" style={{fontSize:11}}>
+                        <span className="dot" /> {shipment.status === 'exception' || exceptions.length > 0 ? 'Exception' : shipment.status}
+                      </span>
+                    </span>
                   </div>
-                ))}
-              </div>
-            </Card>
-          )}
+                </div>
+              )}
+
+              {/* Exceptions */}
+              {exceptions.length > 0 && (
+                <div className="case-card">
+                  <h3>
+                    <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    Exceptions
+                  </h3>
+                  {exceptions.map(ex => (
+                    <div key={ex.id} className="mrow">
+                      <span className="k" style={{color:'var(--ink)'}}>{(ex.exception_type||'').replace(/_/g,' ')}</span>
+                      <span className="v" style={{color: ex.resolved ? 'var(--teal-deep)' : 'var(--amber)'}}>{ex.resolved ? 'Resolved' : 'Active'}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* AI Actions */}
+              {aiActions.length > 0 && (
+                <div className="case-card">
+                  <h3>{GLYPH_MD} AI actions</h3>
+                  {aiActions.map(a => (
+                    <div key={a.id} className="aia">
+                      <div className="r">
+                        <span className="nm">{a.action_type?.replace(/_/g,' ')}</span>
+                        <span className={`st ${a.status === 'executed' ? 'ok' : a.status === 'failed' ? 'failed' : 'pending'}`}>
+                          {a.status === 'executed' ? 'Executed' : a.status === 'failed' ? 'Failed' : 'Pending'}
+                        </span>
+                      </div>
+                      <div className="conf">
+                        <i style={{width: a.confidence_score ? `${Math.round(a.confidence_score * 100)}%` : a.status === 'executed' ? '90%' : '60%'}} />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </DashboardShell>
   )
 }

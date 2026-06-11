@@ -17,22 +17,51 @@ const FILTERS = [
 
 function statusBadge(status: string) {
   const map: Record<string, { label: string; cls: string }> = {
-    open:          { label: 'Open',          cls: 'badge amber' },
-    ai_resolving:  { label: 'AI resolving',  cls: 'badge teal' },
-    pending_human: { label: 'Needs human',   cls: 'badge red' },
-    escalated:     { label: 'Escalated',     cls: 'badge red' },
-    resolved:      { label: 'Resolved',      cls: 'badge gray' },
-    closed:        { label: 'Closed',        cls: 'badge gray' },
+    open:          { label: 'Open',         cls: 'badge gray' },
+    ai_resolving:  { label: 'AI resolving', cls: 'badge teal' },
+    pending_human: { label: 'Needs human',  cls: 'badge amber' },
+    escalated:     { label: 'Escalated',    cls: 'badge red' },
+    resolved:      { label: 'Resolved',     cls: 'badge teal' },
+    closed:        { label: 'Closed',       cls: 'badge gray' },
   }
   const s = map[status] || { label: status, cls: 'badge gray' }
-  return <span className={s.cls}><span className="dot"></span> {s.label}</span>
+  return <span className={s.cls}><span className="dot" />{s.label}</span>
 }
 
-function priorityBadge(p: string) {
-  if (!p) return <span className="badge gray">—</span>
-  const map: Record<string, string> = { critical: 'badge red', high: 'badge amber', medium: 'badge amber', low: 'badge gray' }
-  return <span className={map[p] || 'badge gray'}>{p.toUpperCase()}</span>
+function priorityBadge(priority: string) {
+  if (!priority) return null
+  // SEV-1 = critical, SEV-2 = high, SEV-3 = medium/low
+  const map: Record<string, string> = {
+    critical: 'badge red',
+    high:     'badge amber',
+    medium:   'badge gray',
+    low:      'badge gray',
+  }
+  const labels: Record<string, string> = {
+    critical: 'SEV-1',
+    high:     'SEV-2',
+    medium:   'SEV-3',
+    low:      'SEV-3',
+  }
+  return <span className={map[priority] || 'badge gray'}>{labels[priority] || priority.toUpperCase()}</span>
 }
+
+function timeAgo(dateStr: string) {
+  if (!dateStr) return '—'
+  const diff = Date.now() - new Date(dateStr).getTime()
+  const mins = Math.floor(diff / 60000)
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.floor(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  return `${Math.floor(hrs / 24)}d ago`
+}
+
+const GLYPH = (
+  <svg className="glyph" viewBox="0 0 100 100" fill="none" style={{width:14,height:14}}>
+    <path d="M87.6 36.3 A40 40 0 1 1 66.9 13.7" strokeWidth="9" strokeLinecap="round" />
+    <circle cx="88.6" cy="15.2" r="8.5" />
+  </svg>
+)
 
 export default function CasesPage() {
   const router = useRouter()
@@ -57,7 +86,7 @@ export default function CasesPage() {
           <div className="sub">{loading ? '—' : cases.length} cases · {needHuman} need your judgment</div>
         </div>
         <div className="topbar-right">
-          {aiResolving > 0 && <span className="status-pill"><span className="dot"></span> {aiResolving} auto-resolving</span>}
+          {aiResolving > 0 && <span className="status-pill"><span className="dot" /> {aiResolving} auto-resolving</span>}
           <Link href="/ingest" className="btn btn-primary btn-sm">Import shipments</Link>
         </div>
       </header>
@@ -91,25 +120,33 @@ export default function CasesPage() {
                 </tr>
               </thead>
               <tbody>
-                {cases.map(c => (
-                  <tr key={c.id} style={{ cursor: 'pointer' }} onClick={() => router.push(`/cases/${c.id}`)}>
-                    <td>
-                      <div className="strong">{c.title}</div>
-                      <div className="dim">{((c as any).exception_type)?.replace(/_/g, ' ')} · <span className="id">{c.id.slice(0,8)}</span></div>
-                    </td>
-                    <td>{statusBadge(c.status)}</td>
-                    <td>{priorityBadge(c.priority)}</td>
-                    <td>
-                      <span className="assigned">
-                        {c.assigned_to === 'ai'
-                          ? <><span className="a-ai"><svg className="glyph" viewBox="0 0 100 100" fill="none"><path d="M87.6 36.3 A40 40 0 1 1 66.9 13.7" strokeWidth="9" strokeLinecap="round"/><circle cx="88.6" cy="15.2" r="8.5"/></svg></span> Oviq</>
-                          : <><span className="a-h">H</span> {c.assigned_to || 'Unassigned'}</>
-                        }
-                      </span>
-                    </td>
-                    <td className="dim">{c.created_at ? new Date(c.created_at).toLocaleDateString() : '—'}</td>
-                  </tr>
-                ))}
+                {cases.map(c => {
+                  const isAI = c.assigned_to === 'ai' || c.status === 'ai_resolving' || c.status === 'open'
+                  const name = c.assigned_to && c.assigned_to !== 'ai'
+                    ? c.assigned_to
+                    : 'Oviq'
+                  const initials = name === 'Oviq' ? null : name.split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase()
+
+                  return (
+                    <tr key={c.id} style={{ cursor: 'pointer' }} onClick={() => router.push(`/cases/${c.id}`)}>
+                      <td>
+                        <div className="strong">{c.title}</div>
+                        <div className="dim">{(c as any).exception_type?.replace(/_/g, ' ')} · <span className="id">{(c as any).shipment_ref || c.id.slice(0,8)}</span></div>
+                      </td>
+                      <td>{statusBadge(c.status)}</td>
+                      <td>{priorityBadge(c.priority)}</td>
+                      <td>
+                        <span className="assigned">
+                          {isAI
+                            ? <><span className="a-ai">{GLYPH}</span> Oviq</>
+                            : <><span className="a-h">{initials}</span> {name.split(' ')[0]} {name.split(' ')[1]?.[0]}.</>
+                          }
+                        </span>
+                      </td>
+                      <td className="dim">{timeAgo(c.created_at)}</td>
+                    </tr>
+                  )
+                })}
               </tbody>
             </table>
           )}
