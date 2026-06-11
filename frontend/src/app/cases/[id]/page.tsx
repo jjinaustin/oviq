@@ -114,7 +114,7 @@ export default function CaseDetailPage() {
                     style={{ borderColor: 'var(--border)' }}>
                     <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                       t.status === 'completed' ? 'bg-emerald-400' :
-                      t.status === 'failed' ? 'bg-red-400' : 'bg-yellow-400'
+                      t.status === 'failed' ? 'bg-red-400' : 'bg-teal-600'
                     }`} />
                     <span className="text-sm flex-1" style={{ color: 'var(--text)' }}>{t.title}</span>
                     <span className="text-xs flex items-center gap-1"
@@ -169,7 +169,7 @@ export default function CaseDetailPage() {
                     <span className="text-xs" style={{ color: 'var(--text-2)' }}>
                       {EXCEPTION_LABELS[e.exception_type] || e.exception_type}
                     </span>
-                    <span className={`text-xs ${e.resolved ? 'text-emerald-400' : 'text-amber-400'}`}>
+                    <span className={`text-xs ${e.resolved ? 'text-emerald-400' : 'text-teal-600'}`}>
                       {e.resolved ? 'Resolved' : 'Active'}
                     </span>
                   </div>
@@ -194,7 +194,7 @@ export default function CaseDetailPage() {
                       </span>
                       <span className={`text-xs ${
                         a.status === 'executed' ? 'text-emerald-400' :
-                        a.status === 'failed' ? 'text-red-400' : 'text-yellow-400'
+                        a.status === 'failed' ? 'text-red-400' : 'text-teal-600'
                       }`}>{a.status}</span>
                     </div>
                     {a.confidence_score && (
