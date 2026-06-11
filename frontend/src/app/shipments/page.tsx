@@ -2,11 +2,17 @@
 import { useEffect, useState } from 'react'
 import { Shipment } from '@/types'
 import { api } from '@/lib/api'
-import { Card } from '@/components/ui/Card'
-import { EmptyState } from '@/components/ui/EmptyState'
-import { Truck } from 'lucide-react'
-import { formatDateShort } from '@/lib/utils'
 import { DashboardShell } from '@/components/layout/DashboardShell'
+import Link from 'next/link'
+
+function statusBadge(status: string) {
+  const s = status?.toLowerCase()
+  if (s === 'delivered') return <span className="badge teal"><span className="dot"/>Delivered</span>
+  if (s === 'delayed') return <span className="badge amber"><span className="dot"/>Delayed</span>
+  if (s === 'in_transit' || s === 'in transit') return <span className="badge teal"><span className="dot"/>In transit</span>
+  if (s === 'pending') return <span className="badge gray"><span className="dot"/>Pending</span>
+  return <span className="badge gray"><span className="dot"/>{status}</span>
+}
 
 export default function ShipmentsPage() {
   const [shipments, setShipments] = useState<Shipment[]>([])
@@ -18,46 +24,53 @@ export default function ShipmentsPage() {
 
   return (
     <DashboardShell>
-      <div className="p-8">
-        <div className="mb-6">
-          <h1 className="text-xl font-semibold" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>Shipments</h1>
-          <p className="text-sm mt-0.5" style={{ color: 'var(--text-3)' }}>
-            {loading ? '—' : shipments.length} shipments imported
-          </p>
+      <header className="topbar">
+        <div>
+          <h1>Shipments</h1>
+          <div className="sub">{loading ? '—' : shipments.length} shipments imported</div>
         </div>
-        <Card>
+        <div className="topbar-right">
+          <Link href="/ingest" className="btn btn-primary btn-sm">Import CSV</Link>
+        </div>
+      </header>
+
+      <div className="content">
+        <div className="panel">
           {shipments.length === 0 && !loading ? (
-            <EmptyState icon={Truck} title="No shipments yet" description="Import a CSV to get started" />
+            <div style={{ padding: '48px 20px', textAlign: 'center' }}>
+              <p style={{ color: 'var(--body)', fontSize: 14 }}>No shipments yet.</p>
+              <p style={{ color: 'var(--faint)', fontSize: 13, marginTop: 6 }}>Import a CSV export from your TMS to get started.</p>
+              <Link href="/ingest" className="btn btn-primary btn-sm" style={{ marginTop: 16, display: 'inline-flex' }}>Import now</Link>
+            </div>
           ) : (
-            <table className="w-full">
+            <table className="tbl">
               <thead>
-                <tr className="border-b text-xs" style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}>
-                  {['Load ID', 'Customer', 'Carrier', 'Origin → Destination', 'Pickup', 'Delivery', 'Status'].map(h => (
-                    <th key={h} className="px-5 py-3 text-left font-medium">{h}</th>
-                  ))}
+                <tr>
+                  <th>Load ID</th>
+                  <th>Customer</th>
+                  <th>Carrier</th>
+                  <th>Route</th>
+                  <th>Pickup</th>
+                  <th>Delivery</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
                 {shipments.map(s => (
-                  <tr key={s.id} className="border-b last:border-0" style={{ borderColor: 'var(--border)' }}>
-                    <td className="px-5 py-3 text-sm font-medium" style={{ color: 'var(--text)' }}>{s.load_id}</td>
-                    <td className="px-5 py-3 text-sm" style={{ color: 'var(--text-2)' }}>{s.customer_name}</td>
-                    <td className="px-5 py-3 text-sm" style={{ color: 'var(--text-2)' }}>{s.carrier_name}</td>
-                    <td className="px-5 py-3 text-xs" style={{ color: 'var(--text-3)' }}>{s.origin} → {s.destination}</td>
-                    <td className="px-5 py-3 text-xs" style={{ color: 'var(--text-3)' }}>{formatDateShort(s.pickup_scheduled)}</td>
-                    <td className="px-5 py-3 text-xs" style={{ color: 'var(--text-3)' }}>{formatDateShort(s.delivery_scheduled)}</td>
-                    <td className="px-5 py-3">
-                      <span className="text-xs capitalize px-2 py-0.5 rounded"
-                        style={{ background: 'var(--surface-2)', color: 'var(--text-3)', border: '1px solid var(--border)' }}>
-                        {s.status}
-                      </span>
-                    </td>
+                  <tr key={s.id}>
+                    <td style={{ whiteSpace: 'nowrap' }}><span className="id">{s.load_id}</span></td>
+                    <td className="strong">{s.customer_name}</td>
+                    <td>{s.carrier_name}</td>
+                    <td className="dim" style={{ whiteSpace: 'nowrap' }}>{s.origin} → {s.destination}</td>
+                    <td className="dim" style={{ whiteSpace: 'nowrap' }}>{s.pickup_scheduled ? new Date(s.pickup_scheduled).toLocaleDateString() : '—'}</td>
+                    <td className="dim" style={{ whiteSpace: 'nowrap' }}>{s.delivery_scheduled ? new Date(s.delivery_scheduled).toLocaleDateString() : '—'}</td>
+                    <td>{statusBadge(s.status)}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           )}
-        </Card>
+        </div>
       </div>
     </DashboardShell>
   )
