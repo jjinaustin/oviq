@@ -2,51 +2,45 @@
 import { useEffect, useState } from 'react'
 import { Case } from '@/types'
 import { api } from '@/lib/api'
-import { Card } from '@/components/ui/Card'
-import { CaseRow } from '@/components/cases/CaseRow'
-import { AlertTriangle, CheckCircle, FolderOpen, ArrowRight } from 'lucide-react'
-import { OviqMark } from '@/components/ui/OviqMark'
-import { Sidebar } from '@/components/layout/Sidebar'
-import { RouteGuard } from '@/components/auth/RouteGuard'
+import { DashboardShell } from '@/components/layout/DashboardShell'
 import { useAuth } from '@/components/auth/AuthProvider'
+import { OviqMark, OviqWordmark } from '@/components/ui/OviqMark'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
-function OnboardingEmpty() {
-  const { user } = useAuth()
-  const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'there'
-  return (
-    <div className="flex flex-col items-center justify-center min-h-full py-20 px-8 text-center">
-      <OviqMark size={48} />
-      <h2 className="text-xl font-semibold mt-6 mb-2" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>
-        Welcome, {firstName}
-      </h2>
-      <p className="text-sm mb-8 max-w-sm" style={{ color: 'var(--text-3)' }}>
-        Oviq is ready to start resolving your shipment exceptions automatically. Import your first CSV to get started.
-      </p>
-      <div className="grid grid-cols-3 gap-4 max-w-2xl w-full mb-8">
-        {[
-          { step: '01', label: 'Import shipments', desc: 'Upload a CSV export from your TMS' },
-          { step: '02', label: 'Exceptions detected', desc: 'Oviq identifies problems automatically' },
-          { step: '03', label: 'AI resolves', desc: 'Cases opened, emails sent, escalation handled' },
-        ].map(({ step, label, desc }) => (
-          <div key={step} className="rounded-xl border p-5 text-left"
-            style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
-            <p className="text-xs font-bold mb-3 font-mono" style={{ color: 'var(--aqua)' }}>{step}</p>
-            <p className="text-sm font-semibold mb-1" style={{ color: 'var(--text)' }}>{label}</p>
-            <p className="text-xs" style={{ color: 'var(--text-3)' }}>{desc}</p>
-          </div>
-        ))}
-      </div>
-      <Link href="/ingest"
-        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-bold transition-opacity hover:opacity-90"
-        style={{ background: 'var(--aqua)', color: 'var(--slate-dark)' }}>
-        Import your first CSV <ArrowRight size={15} />
-      </Link>
-    </div>
-  )
+function getGreeting() {
+  const h = new Date().getHours()
+  if (h < 12) return 'Good morning'
+  if (h < 17) return 'Good afternoon'
+  return 'Good evening'
+}
+
+function getToday() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })
+}
+
+function statusBadge(status: string) {
+  const map: Record<string, { label: string; cls: string }> = {
+    open:          { label: 'Open',           cls: 'badge amber' },
+    ai_resolving:  { label: 'AI resolving',   cls: 'badge teal' },
+    pending_human: { label: 'Needs human',    cls: 'badge amber' },
+    escalated:     { label: 'Escalated',      cls: 'badge red' },
+    resolved:      { label: 'Resolved',       cls: 'badge gray' },
+    closed:        { label: 'Closed',         cls: 'badge gray' },
+  }
+  const s = map[status] || { label: status, cls: 'badge gray' }
+  return <span className={s.cls}><span className="dot"></span> {s.label}</span>
+}
+
+function priorityBadge(p: string) {
+  const map: Record<string, string> = { critical: 'badge red', high: 'badge amber', medium: 'badge amber', low: 'badge gray' }
+  if (!p) return null
+  return <span className={map[p] || 'badge gray'}>{p.toUpperCase()}</span>
 }
 
 export default function DashboardPage() {
+  const { user } = useAuth()
+  const router = useRouter()
   const [cases, setCases] = useState<Case[]>([])
   const [loading, setLoading] = useState(true)
 
@@ -54,86 +48,189 @@ export default function DashboardPage() {
     api.cases.list().then(setCases).finally(() => setLoading(false))
   }, [])
 
-  const critical  = cases.filter(c => ['open', 'escalated', 'pending_human'].includes(c.status))
-  const resolving = cases.filter(c => c.status === 'ai_resolving')
-  const resolved  = cases.filter(c => c.status === 'resolved')
-  const totalOpen = cases.filter(c => !['resolved', 'closed'].includes(c.status))
+  const firstName = user?.user_metadata?.full_name?.split(' ')[0] || 'there'
+  const critical   = cases.filter(c => ['open','escalated','pending_human'].includes(c.status))
+  const resolving  = cases.filter(c => c.status === 'ai_resolving')
+  const resolved   = cases.filter(c => c.status === 'resolved')
+  const totalOpen  = cases.filter(c => !['resolved','closed'].includes(c.status))
 
-  const stats = [
-    { label: 'Needs attention',  value: critical.length,  color: 'var(--danger)', bg: 'rgba(224,80,80,0.08)', icon: AlertTriangle },
-    { label: 'Oviq resolving',   value: resolving.length, color: 'var(--aqua)',   bg: 'var(--aqua-dim)',      icon: null },
-    { label: 'Resolved today',   value: resolved.length,  color: 'var(--aqua)',   bg: 'var(--aqua-dim)',      icon: CheckCircle },
-    { label: 'Total open',       value: totalOpen.length, color: 'var(--text-2)', bg: 'rgba(122,143,168,0.08)', icon: FolderOpen },
-  ]
-
-  const tableHead = (
-    <thead>
-      <tr className="border-b text-xs" style={{ borderColor: 'var(--border)', color: 'var(--text-3)' }}>
-        {['Case', 'Status', 'Priority', 'Assigned', 'Opened'].map(h => (
-          <th key={h} className="px-5 py-3 text-left font-medium">{h}</th>
-        ))}
-      </tr>
-    </thead>
-  )
+  // Empty onboarding state
+  if (!loading && cases.length === 0) {
+    return (
+      <DashboardShell>
+        <header className="topbar">
+          <div>
+            <h1>{getGreeting()}, {firstName}</h1>
+            <div className="sub">{getToday()} · no shipments yet</div>
+          </div>
+        </header>
+        <div className="content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 400 }}>
+          <div style={{ textAlign: 'center', maxWidth: 480 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+              <OviqMark size={44} />
+            </div>
+            <h2 style={{ fontSize: 22, fontWeight: 700, color: 'var(--ink)', letterSpacing: '-0.02em', marginBottom: 10 }}>
+              Ready to start resolving
+            </h2>
+            <p style={{ fontSize: 14, color: 'var(--body)', lineHeight: 1.6, marginBottom: 28 }}>
+              Import a CSV export from your TMS to detect exceptions automatically. Oviq handles the first 80% — carrier contact, customer notifications, and escalation.
+            </p>
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+              <Link href="/ingest" className="btn btn-primary">Import shipments</Link>
+              <Link href="/product" className="btn btn-ghost">How it works</Link>
+            </div>
+          </div>
+        </div>
+      </DashboardShell>
+    )
+  }
 
   return (
-    <RouteGuard>
-      <div className="flex h-screen overflow-hidden" style={{ background: 'var(--bg)' }}>
-        <Sidebar />
-        <main className="flex-1 overflow-auto">
-          {!loading && cases.length === 0 ? <OnboardingEmpty /> : (
-            <div className="p-8">
-              <div className="mb-8">
-                <h1 className="text-xl font-semibold" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>Operations</h1>
-                <p className="text-sm mt-0.5" style={{ color: 'var(--text-3)' }}>Exception management overview</p>
-              </div>
-              <div className="grid grid-cols-4 gap-4 mb-8">
-                {stats.map(({ label, value, color, bg, icon: Icon }) => (
-                  <div key={label} className="rounded-xl p-5 border" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="text-xs" style={{ color: 'var(--text-3)' }}>{label}</p>
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: bg }}>
-                        {Icon ? <Icon size={14} style={{ color }} /> : <OviqMark size={16} />}
+    <DashboardShell>
+      <header className="topbar">
+        <div>
+          <h1>{getGreeting()}, {firstName}</h1>
+          <div className="sub">{getToday()} · {totalOpen.length} shipments in motion</div>
+        </div>
+        <div className="topbar-right">
+          <span className="status-pill"><span className="dot"></span> {resolving.length} auto-resolving</span>
+        </div>
+      </header>
+
+      <div className="content">
+        {/* Stat row */}
+        <div className="stat-row">
+          <div className="stat">
+            <div className="l"><span className="dot" style={{ background: 'var(--amber)' }}></span> Needs your judgment</div>
+            <div className="v">{loading ? '—' : critical.length}</div>
+            <div className={`d ${critical.length > 0 ? 'amber' : ''}`}>{critical.length > 0 ? `${critical.length} new` : 'all clear'}</div>
+          </div>
+          <div className="stat">
+            <div className="l"><span className="dot" style={{ background: 'var(--teal)' }}></span> Auto-resolving now</div>
+            <div className="v">{loading ? '—' : resolving.length}</div>
+            <div className="d">on track</div>
+          </div>
+          <div className="stat">
+            <div className="l"><span className="dot" style={{ background: 'var(--teal-deep)' }}></span> Handled today</div>
+            <div className="v">{loading ? '—' : resolved.length}</div>
+            <div className="d">resolved</div>
+          </div>
+          <div className="stat">
+            <div className="l"><span className="dot" style={{ background: 'var(--faint)' }}></span> Total open</div>
+            <div className="v">{loading ? '—' : totalOpen.length}</div>
+            <div className="d">in motion</div>
+          </div>
+        </div>
+
+        <div className="cols">
+          <div className="col-main">
+            {critical.length > 0 && (
+              <>
+                <div className="sec-head">
+                  <div className="t">
+                    Needs your judgment
+                    <span className="badge amber">{critical.length}</span>
+                  </div>
+                  <Link href="/cases" className="link">View all</Link>
+                </div>
+                <div className="needs">
+                  {critical.slice(0, 3).map(c => (
+                    <div key={c.id} className="need">
+                      <div className="top">
+                        <div style={{ flex: 1 }}>
+                          <div className="ttl">
+                            <span className="x">{c.title}</span>
+                            <span className="id">#{c.id.slice(0, 8)}</span>
+                          </div>
+                          <div className="ctx">{((c as any).description) || `${((c as any).exception_type)?.replace(/_/g, ' ')} — review and resolve`}</div>
+                        </div>
+                        {statusBadge(c.status)}
+                      </div>
+                      <div className="acts">
+                        <button className="btn btn-primary btn-sm" onClick={() => router.push(`/cases/${c.id}`)}>
+                          Review &amp; resolve
+                        </button>
+                        <span className="ago">{c.created_at ? new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
                       </div>
                     </div>
-                    <p className="text-2xl font-semibold" style={{ color: 'var(--text)', letterSpacing: '-0.02em' }}>
-                      {loading ? '—' : value}
-                    </p>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {resolving.length > 0 && (
+              <>
+                <div className="sec-head" style={{ marginTop: critical.length > 0 ? 24 : 0 }}>
+                  <div className="t">
+                    <OviqMark size={16} />
+                    Oviq resolving
+                    <span className="badge teal">{resolving.length}</span>
                   </div>
-                ))}
+                  <Link href="/cases?filter=ai_resolving" className="link">View all</Link>
+                </div>
+                <div className="panel">
+                  <table className="tbl">
+                    <thead><tr><th>Case</th><th>Status</th><th>Priority</th><th>Opened</th></tr></thead>
+                    <tbody>
+                      {resolving.slice(0, 5).map(c => (
+                        <tr key={c.id} style={{ cursor: 'pointer' }} onClick={() => router.push(`/cases/${c.id}`)}>
+                          <td>
+                            <div className="strong">{c.title}</div>
+                            <div className="dim">{((c as any).exception_type)?.replace(/_/g, ' ')} · <span className="id">{c.id.slice(0,8)}</span></div>
+                          </td>
+                          <td>{statusBadge(c.status)}</td>
+                          <td>{priorityBadge(c.priority)}</td>
+                          <td className="dim">{c.created_at ? new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+
+            {!loading && critical.length === 0 && resolving.length === 0 && cases.length > 0 && (
+              <div style={{ textAlign: 'center', padding: '48px 0' }}>
+                <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'var(--mist)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--ink)' }}>All caught up</p>
+                <p style={{ fontSize: 13, color: 'var(--body)', marginTop: 4 }}>No exceptions require attention right now</p>
               </div>
-              {critical.length > 0 && (
-                <div className="mb-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <AlertTriangle size={13} style={{ color: 'var(--danger)' }} />
-                    <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--danger)' }}>Requires human action</h2>
-                  </div>
-                  <Card><table className="w-full">{tableHead}<tbody>{critical.map(c => <CaseRow key={c.id} c={c} />)}</tbody></table></Card>
-                </div>
-              )}
-              {resolving.length > 0 && (
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <OviqMark size={14} />
-                    <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--aqua)' }}>Oviq resolving automatically</h2>
-                  </div>
-                  <Card><table className="w-full">{tableHead}<tbody>{resolving.map(c => <CaseRow key={c.id} c={c} />)}</tbody></table></Card>
-                </div>
-              )}
-              {!loading && cases.length > 0 && critical.length === 0 && resolving.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4"
-                    style={{ background: 'var(--aqua-dim)', border: '1px solid rgba(39,201,182,0.25)' }}>
-                    <CheckCircle size={20} style={{ color: 'var(--aqua)' }} />
-                  </div>
-                  <p className="text-sm font-medium" style={{ color: 'var(--text)' }}>All caught up</p>
-                  <p className="text-xs mt-1" style={{ color: 'var(--text-3)' }}>No exceptions require attention right now</p>
-                </div>
-              )}
+            )}
+          </div>
+
+          <div className="col-rail">
+            <div className="dark-card">
+              <div className="h">
+                <OviqMark size={18} className="on-dark" />
+                <span>Oviq is handling it</span>
+              </div>
+              <p>
+                {resolving.length > 0
+                  ? `${resolving.length} exception${resolving.length > 1 ? 's are' : ' is'} being resolved automatically right now. You'll only be notified if something needs your judgment.`
+                  : `All exceptions are being monitored. When something needs attention, it will appear here immediately.`
+                }
+              </p>
             </div>
-          )}
-        </main>
+
+            <div className="panel">
+              <div className="feed-head">
+                <span className="t">Recent activity</span>
+                <span className="n">{cases.length} total</span>
+              </div>
+              {cases.slice(0, 6).map(c => (
+                <div key={c.id} className="feed-row" style={{ cursor: 'pointer' }} onClick={() => router.push(`/cases/${c.id}`)}>
+                  <span className={`d ${['open','pending_human'].includes(c.status) ? 'amber' : c.status === 'escalated' ? 'red' : ''}`}></span>
+                  <span className="x">{c.title}</span>
+                  <span className="id">{c.id.slice(0,6)}</span>
+                  <span className="time">{c.created_at ? new Date(c.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
-    </RouteGuard>
+    </DashboardShell>
   )
 }
