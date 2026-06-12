@@ -96,17 +96,7 @@ function OnboardingEmpty({ firstName }: { firstName: string }) {
 
       <p style={{fontSize:13,color:'var(--faint)'}}>
         Don't have a CSV ready?{' '}
-        <button onClick={() => { const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent('Load ID,Customer,Carrier,Origin,Destination,Pickup Date,Delivery Date,Status
-LOAD-4001,Meridian Building Supply,FastLane Freight,Chicago IL,Indianapolis IN,2024-01-08 08:00,2024-01-08 17:00,pending
-LOAD-4002,Gulf Coast Distributors,Southern Transport Co,Houston TX,New Orleans LA,2024-01-07 06:00,2024-01-08 14:00,in_transit
-LOAD-4003,Pacific Rim Imports,Western Haulers LLC,Los Angeles CA,Phoenix AZ,2024-01-06 09:00,2024-01-07 18:00,delayed
-LOAD-4004,Northeast Food Group,Atlas Carriers,Boston MA,New York NY,2024-01-07 07:00,2024-01-08 12:00,in_transit
-LOAD-4005,Lakeside Manufacturing,Great Lakes Transport,Detroit MI,Cleveland OH,2024-01-08 10:00,2024-01-08 16:00,pending
-LOAD-4006,Sunrise Electronics,Swift Logistics,Dallas TX,Memphis TN,2024-01-05 08:00,2024-01-06 17:00,in_transit
-LOAD-4007,Mountain West Retail,Rocky Mountain Freight,Denver CO,Salt Lake City UT,2024-01-07 09:00,2024-01-08 15:00,delayed
-LOAD-4008,Coastal Seafood Co,Maritime Express,Seattle WA,Portland OR,2024-01-08 06:00,2024-01-08 14:00,pending
-LOAD-4009,Heartland Grain,Midwest Haulers Inc,Kansas City MO,St Louis MO,2024-01-06 07:00,2024-01-06 15:00,delivered
-LOAD-4010,Atlantic Auto Parts,Eastern Transport LLC,Philadelphia PA,Baltimore MD,2024-01-07 08:00,2024-01-08 10:00,in_transit'); a.download = 'oviq-sample-shipments.csv'; a.click(); }} style={{background:'none',border:'none',cursor:'pointer',color:'var(--teal-deep)',fontWeight:600,fontSize:'inherit',padding:0}}>Download a sample file →</button>
+        <Link href="/ingest" style={{color:'var(--teal-deep)',fontWeight:600}}>Download a sample file →</Link>
       </p>
     </div>
   )
