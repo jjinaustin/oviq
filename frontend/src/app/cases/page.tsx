@@ -121,17 +121,17 @@ export default function CasesPage() {
               </thead>
               <tbody>
                 {cases.map(c => {
-                  const isAI = c.assigned_to === 'ai' || c.status === 'ai_resolving' || c.status === 'open'
+                  const isAI = (c.assigned_to === 'ai' || !c.assigned_to) && (c.status === 'ai_resolving' || c.status === 'open' || c.status === 'resolved')
                   const name = c.assigned_to && c.assigned_to !== 'ai'
                     ? c.assigned_to
-                    : 'Oviq'
-                  const initials = name === 'Oviq' ? null : name.split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase()
+                    : isAI ? 'Oviq' : null
+                  const initials = name && name !== 'Oviq' ? name.split(' ').map((n: string) => n[0]).join('').slice(0,2).toUpperCase() : null
 
                   return (
                     <tr key={c.id} style={{ cursor: 'pointer' }} onClick={() => router.push(`/cases/${c.id}`)}>
                       <td>
                         <div className="strong">{c.title}</div>
-                        <div className="dim">{(c as any).exception_type?.replace(/_/g, ' ')} · <span className="id">{(c as any).shipment_ref || c.id.slice(0,8)}</span></div>
+                        <div className="dim">{(c as any).exception_type?.replace(/_/g, ' ') || c.status?.replace(/_/g, ' ')} · <span className="id">{(c as any).shipment_ref || (c.shipments as any)?.load_id || c.id.slice(0,8)}</span></div>
                       </td>
                       <td>{statusBadge(c.status)}</td>
                       <td>{priorityBadge(c.priority)}</td>
@@ -139,7 +139,9 @@ export default function CasesPage() {
                         <span className="assigned">
                           {isAI
                             ? <><span className="a-ai">{GLYPH}</span> Oviq</>
-                            : <><span className="a-h">{initials}</span> {name.split(' ')[0]} {name.split(' ')[1]?.[0]}.</>
+                            : name
+                              ? <><span className="a-h">{initials}</span> {name.split(' ')[0]} {name.split(' ')[1] ? name.split(' ')[1][0] + '.' : ''}</>
+                              : <span style={{color:'var(--faint)',fontSize:13}}>—</span>
                           }
                         </span>
                       </td>
