@@ -1,17 +1,17 @@
 'use client'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { LayoutDashboard, FolderOpen, Truck, Upload, Settings, LogOut } from 'lucide-react'
-import { OviqMark } from '@/components/ui/OviqMark'
 import { useAuth } from '@/components/auth/AuthProvider'
+import { OviqMark, OviqWordmark } from '@/components/ui/OviqMark'
 
-const nav = [
-  { href: '/dashboard',  label: 'Dashboard',  icon: LayoutDashboard },
-  { href: '/cases',      label: 'Cases',      icon: FolderOpen },
-  { href: '/shipments',  label: 'Shipments',  icon: Truck },
-  { href: '/ingest',     label: 'Import',     icon: Upload },
-  { href: '/settings',   label: 'Settings',   icon: Settings },
+const NAV = [
+  { href: '/dashboard', label: 'Overview', icon: <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg> },
+  { href: '/cases',     label: 'Cases',    icon: <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> },
+  { href: '/shipments', label: 'Shipments',icon: <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg> },
+  { href: '/ingest',    label: 'Import',   icon: <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> },
 ]
+
+const SETTINGS = { href: '/settings', label: 'Settings', icon: <svg viewBox="0 0 24 24" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> }
 
 export function Sidebar() {
   const path = usePathname()
@@ -23,52 +23,36 @@ export function Sidebar() {
     router.push('/login')
   }
 
-  const initials = user?.user_metadata?.full_name
-    ?.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
-    || user?.email?.[0]?.toUpperCase() || 'U'
+  const name = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'
+  const initials = name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2)
 
   return (
-    <aside className="w-56 flex flex-col border-r shrink-0" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
-      <div className="px-5 py-5 border-b" style={{ borderColor: 'var(--border)' }}>
-        <Link href="/dashboard" className="flex items-center gap-2.5 no-underline">
-          <OviqMark size={28} />
-          <span style={{ fontFamily: "'Hanken Grotesk', sans-serif", fontSize: '18px', fontWeight: 700, letterSpacing: '-0.025em', color: 'var(--text)' }}>
-            Oviq
-          </span>
-        </Link>
-      </div>
-      <nav className="flex-1 px-3 py-4 space-y-0.5">
-        {nav.map(({ href, label, icon: Icon }) => {
+    <aside className="sidebar">
+      <Link href="/dashboard" className="side-logo">
+        <OviqMark size={26} />
+        <OviqWordmark size={21} />
+      </Link>
+
+      <nav className="side-nav">
+        {NAV.map(({ href, label, icon }) => {
           const active = path === href || (href !== '/dashboard' && path.startsWith(href))
           return (
-            <Link key={href} href={href}
-              className="flex items-center gap-3 px-3 py-2 rounded-md text-sm transition-colors no-underline"
-              style={{
-                color: active ? 'var(--aqua)' : 'var(--text-2)',
-                background: active ? 'var(--aqua-dim)' : 'transparent',
-                fontWeight: active ? 500 : 400,
-              }}>
-              <Icon size={15} />
-              {label}
+            <Link key={href} href={href} className={`side-item ${active ? 'active' : ''}`}>
+              {icon} {label}
             </Link>
           )
         })}
+        <div className="side-sep" />
+        <Link href={SETTINGS.href} className={`side-item ${path === SETTINGS.href ? 'active' : ''}`}>
+          {SETTINGS.icon} {SETTINGS.label}
+        </Link>
       </nav>
-      <div className="px-3 py-3 border-t" style={{ borderColor: 'var(--border)' }}>
-        <div className="flex items-center gap-2.5 px-3 py-2 rounded-md" style={{ background: 'var(--surface-2)' }}>
-          <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-bold"
-            style={{ background: 'var(--aqua-dim)', color: 'var(--aqua)', border: '1px solid rgba(39,201,182,0.25)' }}>
-            {initials}
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs font-medium truncate" style={{ color: 'var(--text)' }}>
-              {user?.user_metadata?.full_name || user?.email?.split('@')[0]}
-            </p>
-            <p className="text-xs truncate" style={{ color: 'var(--text-3)' }}>{user?.email}</p>
-          </div>
-          <button onClick={handleSignOut} className="shrink-0" style={{ color: 'var(--text-3)' }} title="Sign out">
-            <LogOut size={13} />
-          </button>
+
+      <div className="side-foot">
+        <div className="avatar" onClick={handleSignOut} title="Sign out" style={{background:"var(--teal-deep)",color:"#fff"}}>{initials}</div>
+        <div>
+          <div className="nm">{name}</div>
+          <div className="ro">{user?.email}</div>
         </div>
       </div>
     </aside>
