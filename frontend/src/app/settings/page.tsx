@@ -3,7 +3,7 @@ import { Suspense, useState, useEffect } from 'react'
 import { DashboardShell } from '@/components/layout/DashboardShell'
 import { useAuth } from '@/components/auth/AuthProvider'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { User, Building, CreditCard, LogOut, Check, ExternalLink, Zap } from 'lucide-react'
+import { User, Building, CreditCard, LogOut, Check, ExternalLink, Zap, Mail, Copy } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { supabase } from '@/lib/supabase'
 
@@ -55,6 +55,7 @@ function SettingsContent() {
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null)
   const [portalLoading, setPortalLoading] = useState(false)
   const [billingMessage, setBillingMessage] = useState<string | null>(null)
+  const [copied, setCopied] = useState<string | null>(null)
 
   useEffect(() => {
     if (user?.id) {
@@ -72,6 +73,12 @@ function SettingsContent() {
       setTimeout(() => setBillingMessage(null), 4000)
     }
   }, [user])
+
+  function copyToClipboard(text: string, key: string) {
+    navigator.clipboard.writeText(text)
+    setCopied(key)
+    setTimeout(() => setCopied(null), 2000)
+  }
 
   async function handleSignOut() {
     await signOut()
@@ -151,6 +158,15 @@ function SettingsContent() {
 
   const activePlan = subscription?.status === 'active' ? subscription.plan : null
 
+  // Derive ingest addresses from org name
+  const orgSlug = (orgName || 'your-org')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+  const reportAddress = `${orgSlug}-reports@ingest.oviq.io`
+  const inboxAddress  = `${orgSlug}-inbox@ingest.oviq.io`
+
   return (
     <DashboardShell>
       <div className="p-8 max-w-2xl">
@@ -167,6 +183,7 @@ function SettingsContent() {
           }}>{billingMessage}</div>
         )}
 
+        {/* Account */}
         <Section icon={User} title="Account">
           <Row
             label={user?.user_metadata?.full_name || 'Your Name'}
@@ -186,6 +203,7 @@ function SettingsContent() {
           />
         </Section>
 
+        {/* Organization */}
         <Section icon={Building} title="Organization">
           <div className="px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
             <div className="flex items-center justify-between">
@@ -223,6 +241,93 @@ function SettingsContent() {
           />
         </Section>
 
+        {/* Data Ingest */}
+        <Section icon={Mail} title="Data Ingest">
+          {/* Report address */}
+          <div className="px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
+            <p className="text-xs font-semibold mb-1" style={{ color: 'var(--text-2)' }}>
+              TMS report address
+            </p>
+            <p className="text-xs mb-3" style={{ color: 'var(--text-3)', lineHeight: 1.6 }}>
+              Schedule your daily TMS shipment report to email this address.
+              Oviq processes it automatically — no manual uploads needed.
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 px-3 py-2 rounded-lg text-xs overflow-x-auto"
+                style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--aqua)', fontFamily: 'monospace' }}>
+                {reportAddress}
+              </code>
+              <Button variant="secondary" size="sm" onClick={() => copyToClipboard(reportAddress, 'report')}>
+                {copied === 'report' ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy</>}
+              </Button>
+            </div>
+          </div>
+
+          {/* Inbox address */}
+          <div className="px-5 py-4 border-b" style={{ borderColor: 'var(--border)' }}>
+            <p className="text-xs font-semibold mb-1" style={{ color: 'var(--text-2)' }}>
+              Ops inbox address
+            </p>
+            <p className="text-xs mb-3" style={{ color: 'var(--text-3)', lineHeight: 1.6 }}>
+              Set one auto-forward rule from your ops inbox to this address.
+              Carrier replies, delay notices, and PODs are linked to shipments automatically.
+            </p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 px-3 py-2 rounded-lg text-xs overflow-x-auto"
+                style={{ background: 'var(--surface-2)', border: '1px solid var(--border)', color: 'var(--aqua)', fontFamily: 'monospace' }}>
+                {inboxAddress}
+              </code>
+              <Button variant="secondary" size="sm" onClick={() => copyToClipboard(inboxAddress, 'inbox')}>
+                {copied === 'inbox' ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy</>}
+              </Button>
+            </div>
+          </div>
+
+          {/* Setup steps */}
+          <div className="px-5 py-4">
+            <p className="text-xs font-semibold mb-3" style={{ color: 'var(--text-2)' }}>Setup guide</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                {
+                  num: '01',
+                  title: 'Schedule your TMS report',
+                  body: 'In your TMS, find scheduled reports or automated exports. Create a daily shipment report and set the delivery email to your report address above. Works with McLeod, Aljex, AscendTMS, Rose Rocket, or any TMS that can email a report.',
+                },
+                {
+                  num: '02',
+                  title: 'Confirm your column mapping',
+                  body: "When your first report arrives, Oviq maps your columns automatically. You'll get a notification to confirm — takes about a minute. Every file after that parses instantly.",
+                },
+                {
+                  num: '03',
+                  title: 'Forward your ops inbox',
+                  body: 'Gmail: Settings → See all settings → Forwarding and POP/IMAP → Add a forwarding address. Outlook: Settings → Mail → Forwarding. Forward to your inbox address above.',
+                },
+              ].map(step => (
+                <div key={step.num} style={{
+                  display: 'flex', gap: 12, padding: '12px 14px',
+                  background: 'var(--surface-2)', borderRadius: 8,
+                  border: '1px solid var(--border)',
+                }}>
+                  <span style={{
+                    fontSize: 10, fontWeight: 700, color: 'var(--aqua)',
+                    fontFamily: 'monospace', flexShrink: 0, marginTop: 2,
+                  }}>{step.num}</span>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)', marginBottom: 3 }}>
+                      {step.title}
+                    </p>
+                    <p style={{ fontSize: 12, color: 'var(--text-3)', lineHeight: 1.6 }}>
+                      {step.body}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Section>
+
+        {/* Plan & Billing */}
         <Section icon={CreditCard} title="Plan & Billing">
           {activePlan ? (
             <div className="px-5 py-4">
