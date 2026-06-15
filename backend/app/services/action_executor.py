@@ -41,7 +41,7 @@ DRAFT_MODEL = {
 DEFAULT_DRAFT_MODEL = "claude-haiku-4-5-20251001"
 
 FALLBACK_EMAIL_FROM = "ops@oviq.io"
-SENDING_DOMAIN = "mail.oviq.com"
+SENDING_DOMAIN = "notify.oviq.io"
 
 
 class ActionExecutor:
