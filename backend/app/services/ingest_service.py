@@ -250,19 +250,13 @@ class IngestService:
             "body": body[:10000],
             "sender_email": from_email[:200],
             "status": "received",
-            "received_at": datetime.now(timezone.utc).isoformat(),
         }
         if case_id:
             comm_data["case_id"] = case_id
-        if shipment:
-            comm_data["shipment_id"] = shipment["id"]
 
-        self.db.table("communications").insert(comm_data).execute()
-
-        # --- Update shipment status from message if useful ------------------
-        if shipment and event_type in ("eta_update", "delay_notice", "pickup_confirmed",
-                                        "delivery_confirmed"):
-            self._apply_event_to_shipment(shipment, extraction)
+        if case_id:
+            # communications has no shipment_id column — only insert if linked to a case
+            self.db.table("communications").insert(comm_data).execute()
 
         # --- Re-run detection -----------------------------------------------
         cases_opened = 0
