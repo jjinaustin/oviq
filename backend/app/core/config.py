@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     ANTHROPIC_API_KEY: str = ""
     OPENAI_API_KEY: str = ""
     RESEND_API_KEY: str = ""
+    POSTMARK_SERVER_TOKEN: str = ""
     EMAIL_FROM: str = "ops@oviq.io"
     SECRET_KEY: str = "dev-secret-key"
     ENVIRONMENT: str = "development"
