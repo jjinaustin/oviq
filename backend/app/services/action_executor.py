@@ -26,6 +26,23 @@ TEMPLATES = {
     "customer_acknowledgement":    "customer_acknowledgement",
 }
 
+# Carrier comms are routine and high-volume — Haiku is plenty.
+# Customer-facing apology/complaint emails carry more relationship risk —
+# use Sonnet for those so tone stays sharp.
+DRAFT_MODEL = {
+    "carrier_missed_pickup":       "claude-haiku-4-5-20251001",
+    "carrier_eta_request":         "claude-haiku-4-5-20251001",
+    "carrier_pod_request":         "claude-haiku-4-5-20251001",
+    "carrier_urgent_contact":      "claude-haiku-4-5-20251001",
+    "customer_delay_notification": "claude-sonnet-4-6",
+    "customer_delay_apology":      "claude-sonnet-4-6",
+    "customer_acknowledgement":    "claude-sonnet-4-6",
+}
+DEFAULT_DRAFT_MODEL = "claude-haiku-4-5-20251001"
+
+FALLBACK_EMAIL_FROM = "ops@oviq.io"
+SENDING_DOMAIN = "mail.oviq.com"
+
 
 class ActionExecutor:
     def __init__(self):
@@ -40,19 +57,29 @@ class ActionExecutor:
         recipient_name = shipment.get("customer_name") if is_customer else shipment.get("carrier_name")
         exception_type = exceptions[0]["exception_type"] if exceptions else "unknown"
 
+        org_id = shipment.get("organization_id") or case.get("organization_id")
+        from_address, from_display = self._resolve_sender(org_id)
+
         action_id = self._log_ai_action(case_id, "email_drafted", {"template": template, "recipient_type": participant_type})
 
-        draft = await self._draft_email(template, shipment, exception_type, recipient_name)
+        model = self._resolve_model(template)
+        draft = await self._draft_email(template, shipment, exception_type, recipient_name, model)
         subject = draft.get("subject", f"Shipment {shipment.get('load_id')} — Update Required")
         body = draft.get("body", "")
         confidence = draft.get("confidence", 0.85)
 
-        self._update_ai_action(action_id, "executed", {"subject": subject, "confidence": confidence}, confidence)
+        self._update_ai_action(action_id, "executed", {"subject": subject, "confidence": confidence}, confidence, model)
 
         sent = False
         if recipient_email and settings.RESEND_API_KEY and not settings.RESEND_API_KEY.startswith("re_..."):
             try:
-                resend.Emails.send({"from": settings.EMAIL_FROM, "to": recipient_email, "subject": subject, "text": body})
+                resend.Emails.send({
+                    "from": f"{from_display} <{from_address}>",
+                    "to": recipient_email,
+                    "reply_to": from_address,
+                    "subject": subject,
+                    "text": body,
+                })
                 sent = True
             except Exception as e:
                 logger.warning(f"Email send failed: {e}")
@@ -61,7 +88,7 @@ class ActionExecutor:
             "case_id": case_id, "direction": "outbound",
             "participant_type": participant_type, "channel": "email",
             "recipient_email": recipient_email, "recipient_name": recipient_name,
-            "sender_email": settings.EMAIL_FROM, "subject": subject, "body": body,
+            "sender_email": from_address, "subject": subject, "body": body,
             "sent_at": datetime.now(timezone.utc).isoformat() if sent else None,
             "status": "sent" if sent else "drafted",
         }).execute()
@@ -71,10 +98,53 @@ class ActionExecutor:
             "case_id": case_id, "shipment_id": shipment["id"],
             "event_type": f"email.{participant_type}", "actor": "ai",
             "summary": f"{action_label} — {subject}",
-            "payload": {"template": template, "sent": sent, "confidence": confidence},
+            "payload": {"template": template, "sent": sent, "confidence": confidence, "model": model},
         }).execute()
 
-    async def _draft_email(self, template, shipment, exception_type, recipient_name):
+    # ------------------------------------------------------------------
+    # Sender resolution
+    # ------------------------------------------------------------------
+
+    def _resolve_sender(self, org_id: Optional[str]) -> tuple[str, str]:
+        """
+        Resolve the From address and display name for a given org.
+
+        Returns (from_address, display_name).
+        Falls back to FALLBACK_EMAIL_FROM if no org_id or no slug configured —
+        e.g. mail.oviq.com isn't verified yet, or org has no email_slug set.
+        """
+        if not org_id:
+            return FALLBACK_EMAIL_FROM, "Oviq Operations"
+
+        try:
+            result = self.db.table("organizations") \
+                .select("name, email_slug") \
+                .eq("id", org_id) \
+                .single() \
+                .execute()
+        except Exception as e:
+            logger.warning(f"Could not resolve org for sender address: {e}")
+            return FALLBACK_EMAIL_FROM, "Oviq Operations"
+
+        org = result.data or {}
+        slug = org.get("email_slug")
+        name = org.get("name", "Operations")
+
+        if not slug:
+            return FALLBACK_EMAIL_FROM, "Oviq Operations"
+
+        from_address = f"{slug}@{SENDING_DOMAIN}"
+        display_name = f"{name} Operations via Oviq"
+        return from_address, display_name
+
+    def _resolve_model(self, template: str) -> str:
+        return DRAFT_MODEL.get(template, DEFAULT_DRAFT_MODEL)
+
+    # ------------------------------------------------------------------
+    # Drafting
+    # ------------------------------------------------------------------
+
+    async def _draft_email(self, template, shipment, exception_type, recipient_name, model):
         prompts = {
             "carrier_missed_pickup": f"""Draft a professional email to a carrier about a missed pickup.
 Load ID: {shipment.get('load_id')} | Carrier: {shipment.get('carrier_name')}
@@ -119,7 +189,7 @@ Return JSON: {{"subject": "...", "body": "...", "confidence": 0.0}}""",
 
         try:
             response = self.ai.messages.create(
-                model="claude-opus-4-5", max_tokens=600,
+                model=model, max_tokens=600,
                 system=SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": prompt}]
             )
@@ -137,6 +207,10 @@ Return JSON: {{"subject": "...", "body": "...", "confidence": 0.0}}""",
                 "confidence": 0.5,
             }
 
+    # ------------------------------------------------------------------
+    # Logging helpers
+    # ------------------------------------------------------------------
+
     def _log_ai_action(self, case_id, action_type, input_data):
         r = self.db.table("ai_actions").insert({
             "case_id": case_id, "action_type": action_type,
@@ -144,12 +218,12 @@ Return JSON: {{"subject": "...", "body": "...", "confidence": 0.0}}""",
         }).execute()
         return r.data[0]["id"]
 
-    def _update_ai_action(self, action_id, status, output_data, confidence):
+    def _update_ai_action(self, action_id, status, output_data, confidence, model):
         self.db.table("ai_actions").update({
             "status": status,
             "executed_at": datetime.now(timezone.utc).isoformat(),
             "output_data": output_data, "confidence_score": confidence,
-            "model_used": "claude-opus-4-5",
+            "model_used": model,
         }).eq("id", action_id).execute()
 
     def _template_to_label(self, template):
