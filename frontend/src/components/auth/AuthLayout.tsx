@@ -27,8 +27,8 @@ export function AuthLayout({
   ]
   const proof = proofPoints || defaultProof
   const headline = signupMode
-    ? <>'Handle the first 80% <em>automatically.</em></>
-    : <>'Exception operations,<br /><em>on autopilot.</em></>
+   ? <>Handle the first 80% <em>automatically.</em></>
+   : <>Exception operations,<br /><em>on autopilot.</em></>
   const subtext = signupMode
     ? 'Create your workspace and connect a TMS export. Oviq starts detecting and resolving exceptions in minutes.'
     : "Sign in to see what Oviq has handled while you were away — and the few things that need your judgment."
