@@ -1,864 +1,1152 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Oviq — Exception Operations, On Autopilot</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-:root {
-  --bg:         #0d1117;
-  --surface:    #13181f;
-  --surface-2:  #1a2029;
-  --border:     #1e2730;
-  --border-2:   #263040;
-  --text:       #e8ecf0;
-  --text-2:     #7a8fa8;
-  --text-3:     #4a6070;
-  --aqua:       #27C9B6;
-  --aqua-deep:  #0E7E72;
-  --aqua-dim:   rgba(39,201,182,0.1);
-  --slate:      #11161D;
-}
-
-html { scroll-behavior: smooth; }
-
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Hanken Grotesk', sans-serif;
-  font-size: 16px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
-}
-
-.mono { font-family: 'JetBrains Mono', monospace; }
-
-/* ── NAV ── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 3rem; height: 64px;
-  background: rgba(13,17,23,0.9);
-  backdrop-filter: blur(16px);
-  border-bottom: 1px solid var(--border);
-}
-
-.nav-logo {
-  display: flex; align-items: center; gap: 10px;
-  text-decoration: none;
-}
-.nav-logo-text {
-  font-size: 18px; font-weight: 700;
-  letter-spacing: -0.025em; color: var(--text);
-}
-
-.nav-links {
-  display: flex; align-items: center; gap: 2.5rem;
-}
-.nav-links a {
-  font-size: 14px; color: var(--text-2);
-  text-decoration: none; transition: color 0.2s;
-}
-.nav-links a:hover { color: var(--text); }
-
-.btn-primary {
-  background: var(--aqua); color: var(--slate);
-  font-size: 13px; font-weight: 700;
-  padding: 9px 20px; border-radius: 7px;
-  text-decoration: none; transition: opacity 0.2s;
-  display: inline-flex; align-items: center; gap: 7px;
-  white-space: nowrap;
-}
-.btn-primary:hover { opacity: 0.88; }
-
-.btn-outline {
-  background: transparent; color: var(--text);
-  font-size: 14px; font-weight: 500;
-  padding: 11px 24px; border-radius: 8px;
-  text-decoration: none;
-  border: 1px solid var(--border-2);
-  display: inline-flex; align-items: center; gap: 7px;
-  transition: border-color 0.2s;
-}
-.btn-outline:hover { border-color: var(--text-3); }
-
-/* ── LAYOUT ── */
-.section { padding: 7rem 3rem; }
-.section-inner { max-width: 1080px; margin: 0 auto; }
-
-.section-label {
-  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--aqua);
-  margin-bottom: 1rem;
-}
-
-.section-h2 {
-  font-size: clamp(28px, 3.5vw, 42px);
-  font-weight: 800; letter-spacing: -0.03em;
-  line-height: 1.15; color: var(--text);
-  margin-bottom: 1rem;
-}
-
-.section-sub {
-  font-size: 17px; color: var(--text-2);
-  line-height: 1.65; max-width: 500px;
-  margin-bottom: 3.5rem;
-}
-
-/* ── HERO ── */
-.hero {
-  min-height: 100vh;
-  display: flex; align-items: center; justify-content: center;
-  padding: 10rem 3rem 7rem;
-  position: relative; overflow: hidden;
-  text-align: center;
-}
-
-.hero-glow {
-  position: absolute; top: 15%; left: 50%; transform: translateX(-50%);
-  width: 800px; height: 500px;
-  background: radial-gradient(ellipse at center, rgba(39,201,182,0.06) 0%, transparent 65%);
-  pointer-events: none;
-}
-
-.hero-grid {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(39,201,182,0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(39,201,182,0.035) 1px, transparent 1px);
-  background-size: 64px 64px;
-  mask-image: radial-gradient(ellipse 80% 70% at center, black 20%, transparent 75%);
-  pointer-events: none;
-}
-
-.hero-inner { position: relative; max-width: 800px; }
-
-.hero-eyebrow {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--aqua);
-  margin-bottom: 2rem;
-  padding: 6px 16px; border-radius: 100px;
-  background: var(--aqua-dim); border: 1px solid rgba(39,201,182,0.2);
-}
-
-.hero-eyebrow-dot {
-  width: 5px; height: 5px; border-radius: 50%; background: var(--aqua);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-h1 {
-  font-size: clamp(38px, 6vw, 68px);
-  font-weight: 800; letter-spacing: -0.035em;
-  line-height: 1.08; color: var(--text);
-  margin-bottom: 1.75rem;
-}
-
-h1 em { font-style: normal; color: var(--aqua); }
-
-.hero-sub {
-  font-size: clamp(16px, 1.8vw, 18px);
-  color: var(--text-2); line-height: 1.7;
-  max-width: 520px; margin: 0 auto 2.5rem;
-}
-
-.hero-actions {
-  display: flex; align-items: center;
-  justify-content: center; gap: 12px;
-  flex-wrap: wrap;
-}
-
-/* Hero stats — fixed color */
-.hero-stats {
-  display: flex; align-items: center; justify-content: center;
-  gap: 0; margin-top: 4.5rem;
-  border: 1px solid var(--border);
-  border-radius: 14px; overflow: hidden;
-  background: var(--surface);
-  max-width: 600px; margin-left: auto; margin-right: auto;
-  margin-top: 4rem;
-}
-
-.hero-stat {
-  flex: 1; padding: 1.5rem 1rem; text-align: center;
-  border-right: 1px solid var(--border);
-}
-.hero-stat:last-child { border-right: none; }
-
-.hero-stat-num {
-  display: block;
-  font-size: 26px; font-weight: 800;
-  letter-spacing: -0.03em; color: var(--aqua);
-  line-height: 1; margin-bottom: 6px;
-}
-.hero-stat-label {
-  font-size: 12px; color: var(--text-2);
-  line-height: 1.4;
-}
-
-/* ── PROBLEM ── */
-.problem {
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-
-/* Horizontal step list — cleaner than 2-col */
-.problem-steps {
-  display: flex; flex-direction: column; gap: 12px;
-  margin-bottom: 3rem;
-}
-
-.problem-step {
-  display: flex; align-items: baseline; gap: 1.5rem;
-  padding: 1.25rem 1.5rem; border-radius: 10px;
-  border: 1px solid var(--border); background: var(--surface-2);
-}
-
-.problem-step-num {
-  font-size: 11px; font-weight: 700; color: var(--aqua);
-  font-family: 'JetBrains Mono', monospace;
-  min-width: 20px; flex-shrink: 0;
-}
-
-.problem-step-text {
-  font-size: 15px; color: var(--text-2); line-height: 1.5;
-}
-
-.problem-step-text strong { color: var(--text); font-weight: 600; }
-
-/* Problem stats — horizontal strip */
-.problem-stat-strip {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.problem-stat-card {
-  padding: 1.75rem 1.5rem; border-radius: 12px;
-  border: 1px solid var(--border); background: var(--bg);
-}
-
-.problem-stat-num {
-  font-size: 38px; font-weight: 800;
-  letter-spacing: -0.04em; color: var(--aqua);
-  line-height: 1; margin-bottom: 8px;
-}
-
-.problem-stat-label {
-  font-size: 13px; color: var(--text-2); line-height: 1.55;
-}
-
-/* ── HOW IT WORKS — spaced grid like capabilities ── */
-.steps-grid {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-.step-card {
-  padding: 1.75rem 1.5rem; border-radius: 12px;
-  border: 1px solid var(--border); background: var(--surface);
-  transition: border-color 0.2s;
-}
-.step-card:hover { border-color: var(--border-2); }
-
-.step-num {
-  font-size: 11px; font-weight: 700; color: var(--aqua);
-  font-family: 'JetBrains Mono', monospace;
-  margin-bottom: 1rem; display: block;
-}
-
-.step-icon {
-  width: 38px; height: 38px; border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--aqua-dim); border: 1px solid rgba(39,201,182,0.18);
-  margin-bottom: 1.25rem;
-}
-
-.step-card h3 {
-  font-size: 15px; font-weight: 700; color: var(--text);
-  letter-spacing: -0.01em; margin-bottom: 8px;
-}
-
-.step-card p { font-size: 13px; color: var(--text-2); line-height: 1.65; }
-
-/* ── FEATURES ── */
-.features-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.feature-card {
-  padding: 1.75rem; border-radius: 12px;
-  border: 1px solid var(--border); background: var(--surface);
-  transition: border-color 0.2s;
-}
-.feature-card:hover { border-color: var(--border-2); }
-
-.feature-icon {
-  width: 38px; height: 38px; border-radius: 9px;
-  display: flex; align-items: center; justify-content: center;
-  background: var(--aqua-dim); border: 1px solid rgba(39,201,182,0.18);
-  margin-bottom: 1.25rem;
-}
-
-.feature-card h3 {
-  font-size: 15px; font-weight: 700; color: var(--text);
-  letter-spacing: -0.01em; margin-bottom: 6px;
-}
-.feature-card p { font-size: 13px; color: var(--text-2); line-height: 1.65; }
-
-/* ── PROOF ── */
-.proof {
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-}
-
-.proof-inner { max-width: 680px; margin: 0 auto; text-align: center; }
-
-.proof-quote {
-  padding: 2.5rem 2.75rem; border-radius: 16px;
-  border: 1px solid var(--border-2); background: var(--surface-2);
-  margin: 2.5rem auto 0;
-}
-
-.proof-quote-mark {
-  font-size: 56px; line-height: 1; color: var(--aqua);
-  opacity: 0.3; font-family: Georgia, serif;
-  margin-bottom: 1rem; display: block; text-align: left;
-}
-
-.proof-quote-text {
-  font-size: 19px; font-weight: 600; color: var(--text);
-  line-height: 1.6; letter-spacing: -0.01em;
-  margin-bottom: 2rem; text-align: left;
-}
-
-/* Fixed: centered attribution */
-.proof-attribution {
-  display: flex; align-items: center;
-  justify-content: center; gap: 14px;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--border);
-}
-
-.proof-avatar {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: var(--aqua-dim); border: 1px solid rgba(39,201,182,0.25);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; font-weight: 700; color: var(--aqua);
-  flex-shrink: 0;
-}
-
-.proof-author-name {
-  font-size: 14px; font-weight: 600; color: var(--text);
-  line-height: 1.3;
-}
-.proof-author-role {
-  font-size: 12px; color: var(--text-3); margin-top: 2px;
-}
-
-.proof-stats {
-  display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 0; margin-top: 3.5rem;
-  border: 1px solid var(--border); border-radius: 14px;
-  overflow: hidden; background: var(--surface-2);
-}
-
-.proof-stat {
-  padding: 1.5rem; text-align: center;
-  border-right: 1px solid var(--border);
-}
-.proof-stat:last-child { border-right: none; }
-.proof-stat-num {
-  font-size: 32px; font-weight: 800;
-  letter-spacing: -0.04em; color: var(--aqua);
-  line-height: 1; margin-bottom: 6px;
-}
-.proof-stat-label { font-size: 12px; color: var(--text-2); }
-
-/* ── PRICING ── */
-.pricing-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 16px; margin-top: 3.5rem;
-}
-
-.pricing-card {
-  padding: 2rem; border-radius: 14px;
-  border: 1px solid var(--border); background: var(--surface);
-  display: flex; flex-direction: column; position: relative;
-}
-
-.pricing-card.featured {
-  border-color: rgba(39,201,182,0.5);
-  background: var(--surface-2);
-}
-
-.pricing-featured-pill {
-  position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
-  background: var(--aqua); color: var(--slate);
-  font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
-  padding: 4px 12px; border-radius: 100px; white-space: nowrap;
-}
-
-.pricing-tier {
-  font-size: 11px; font-weight: 700; color: var(--aqua);
-  letter-spacing: 0.08em; text-transform: uppercase;
-  margin-bottom: 1.25rem;
-}
-
-.pricing-price {
-  font-size: 44px; font-weight: 800;
-  letter-spacing: -0.04em; color: var(--text); line-height: 1;
-  display: flex; align-items: flex-start; gap: 2px;
-}
-.pricing-price sup {
-  font-size: 20px; font-weight: 600;
-  margin-top: 8px;
-}
-
-.pricing-price-sub {
-  font-size: 13px; color: var(--text-3);
-  margin-top: 6px; margin-bottom: 0.75rem;
-}
-
-.pricing-volume {
-  font-size: 13px; color: var(--text-2);
-  padding-bottom: 1.25rem; margin-bottom: 1.25rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.pricing-features {
-  list-style: none; display: flex;
-  flex-direction: column; gap: 10px;
-  flex: 1; margin-bottom: 2rem;
-}
-
-.pricing-features li {
-  display: flex; align-items: flex-start; gap: 10px;
-  font-size: 13px; color: var(--text-2);
-}
-
-.check { color: var(--aqua); flex-shrink: 0; font-size: 14px; margin-top: 1px; }
-
-.pricing-btn {
-  display: block; text-align: center;
-  text-decoration: none; padding: 12px;
-  border-radius: 8px; font-size: 14px; font-weight: 600;
-  transition: opacity 0.2s, border-color 0.2s;
-}
-.pricing-btn-outline {
-  border: 1px solid var(--border-2); color: var(--text);
-}
-.pricing-btn-outline:hover { border-color: var(--text-3); }
-.pricing-btn-fill { background: var(--aqua); color: var(--slate); }
-.pricing-btn-fill:hover { opacity: 0.88; }
-
-/* ── CTA STRIP ── */
-.cta-strip {
-  padding: 7rem 3rem;
-  text-align: center;
-  border-top: 1px solid var(--border);
-}
-
-.cta-h2 {
-  font-size: clamp(30px, 4vw, 50px);
-  font-weight: 800; letter-spacing: -0.03em;
-  line-height: 1.15; color: var(--text);
-  margin-bottom: 1rem;
-}
-.cta-h2 em { font-style: normal; color: var(--aqua); }
-
-.cta-sub {
-  font-size: 17px; color: var(--text-2);
-  margin-bottom: 2.5rem;
-}
-
-/* ── FOOTER ── */
-footer {
-  padding: 2.5rem 3rem;
-  border-top: 1px solid var(--border);
-  display: flex; align-items: center;
-  justify-content: space-between; flex-wrap: wrap; gap: 1rem;
-}
-
-.footer-logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
-.footer-logo-text {
-  font-size: 15px; font-weight: 700;
-  letter-spacing: -0.025em; color: var(--text);
-}
-
-.footer-links { display: flex; gap: 2rem; }
-.footer-links a {
-  font-size: 13px; color: var(--text-3);
-  text-decoration: none; transition: color 0.2s;
-}
-.footer-links a:hover { color: var(--text-2); }
-
-.footer-copy { font-size: 12px; color: var(--text-3); }
-
-/* ── ANIMATIONS ── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-.fade-up { opacity: 0; animation: fadeUp 0.55s ease forwards; }
-.d1 { animation-delay: 0.1s; }
-.d2 { animation-delay: 0.22s; }
-.d3 { animation-delay: 0.36s; }
-.d4 { animation-delay: 0.5s; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Struk - End Formatting Hell</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+            background: #fafafa;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2563eb;
+        }
+
+        .customize-toggle {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .customize-toggle:hover {
+            background: #fafafa;
+            border-color: #2563eb;
+        }
+
+        .customize-toggle.active {
+            background: #2563eb;
+            color: white;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            height: calc(100vh - 73px);
+            max-width: 1800px;
+            margin: 0 auto;
+            transition: grid-template-columns 0.3s ease;
+        }
+
+        .main-layout.sidebar-open {
+            grid-template-columns: 320px 1fr 340px;
+        }
+
+        .templates-sidebar {
+            background: white;
+            border-right: 1px solid #e5e5e5;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #666;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            background: none;
+            border-left: none;
+            border-right: none;
+            border-top: none;
+        }
+
+        .tab:hover {
+            color: #2563eb;
+            background: #fafafa;
+        }
+
+        .tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+        }
+
+        .template-card {
+            background: white;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .template-card:hover {
+            border-color: #2563eb;
+            background: #fafafa;
+        }
+
+        .template-card.active {
+            border-color: #2563eb;
+            background: #f0f7ff;
+        }
+
+        .template-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .template-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .template-desc {
+            font-size: 0.875rem;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 0.75rem;
+        }
+
+        .template-example {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            padding: 0.75rem;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            color: #666;
+            font-family: 'SF Mono', monospace;
+        }
+
+        .template-example-line {
+            margin-bottom: 0.25rem;
+        }
+
+        .center-workspace {
+            display: flex;
+            flex-direction: column;
+            background: #fafafa;
+        }
+
+        .controls-bar {
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .output-format-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .output-format-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .format-selector {
+            padding: 0.5rem 1rem;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: white;
+            cursor: pointer;
+        }
+
+        .convert-btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .convert-btn:hover:not(:disabled) {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .convert-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .editor-split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .editor-panel {
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+
+        .editor-panel.input-panel {
+            border-right: 1px solid #e5e5e5;
+        }
+
+        .panel-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e5e5e5;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+        }
+
+        .panel-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .input-textarea {
+            width: 100%;
+            height: 100%;
+            border: none;
+            font-family: 'SF Mono', 'Monaco', monospace;
+            font-size: 0.95rem;
+            line-height: 1.7;
+            resize: none;
+            color: #1a1a1a;
+        }
+
+        .input-textarea:focus {
+            outline: none;
+        }
+
+        .output-preview {
+            font-family: inherit;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            color: #999;
+            text-align: center;
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .char-counter {
+            position: absolute;
+            bottom: 1rem;
+            right: 1.5rem;
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        .panel-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #e5e5e5;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            background: white;
+            border: 1px solid #e5e5e5;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #fafafa;
+        }
+
+        .action-btn.primary {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .action-btn.primary:hover {
+            background: #1d4ed8;
+        }
+
+        .customization-sidebar {
+            background: white;
+            border-left: 1px solid #e5e5e5;
+            padding: 1.5rem;
+            overflow-y: auto;
+            transform: translateX(100%);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .main-layout.sidebar-open .customization-sidebar {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .sidebar-header {
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+            margin-bottom: 1.5rem;
+        }
+
+        .customize-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .customize-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #666;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+
+        .customize-input {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: white;
+        }
+
+        .bullet-options {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+        }
+
+        .bullet-option {
+            aspect-ratio: 1;
+            border: 2px solid #e5e5e5;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.2rem;
+            background: white;
+        }
+
+        .bullet-option:hover {
+            border-color: #2563eb;
+            background: #fafafa;
+        }
+
+        .bullet-option.active {
+            border-color: #2563eb;
+            background: #f0f7ff;
+        }
+
+        .preview-section {
+            margin: 1.5rem 0;
+            padding: 1.5rem 0;
+            border-top: 1px solid #e5e5e5;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .preview-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .mini-preview {
+            background: #fafafa;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        .mini-preview h3 {
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .mini-preview p {
+            margin-bottom: 0.75rem;
+            line-height: 1.6;
+        }
+
+        .mini-preview ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .mini-preview li {
+            margin-bottom: 0.5rem;
+        }
+
+        .save-style-btn {
+            width: 100%;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .save-style-btn:hover {
+            background: #000;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #2563eb;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e5e5;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            padding: 1rem;
+            border-radius: 8px;
+            color: #c00;
+            margin: 1rem 1.5rem;
+        }
+
+        .success {
+            background: #efe;
+            border: 1px solid #cfc;
+            padding: 1rem;
+            border-radius: 8px;
+            color: #060;
+            margin: 1rem 1.5rem;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .saved-style-card {
+            background: white;
+            border: 2px solid #e5e5e5;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .saved-style-card:hover {
+            border-color: #2563eb;
+            background: #fafafa;
+        }
+
+        .saved-style-card.active {
+            border-color: #2563eb;
+            background: #f0f7ff;
+        }
+
+        .saved-style-name {
+            font-weight: 600;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .saved-style-meta {
+            font-size: 0.75rem;
+            color: #999;
+        }
+
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 280px 1fr;
+            }
+            .main-layout.sidebar-open {
+                grid-template-columns: 280px 1fr 300px;
+            }
+        }
+    </style>
 </head>
 <body>
-
-<!-- NAV -->
-<nav>
-  <a href="/" class="nav-logo">
-    <svg width="26" height="26" viewBox="-8 -8 116 116" fill="none">
-      <path d="M 50 8 A 42 42 0 0 1 92 50 A 42 42 0 0 1 50 92 A 42 42 0 0 1 8 50 A 42 42 0 0 1 22.5 19.5" stroke="#27C9B6" stroke-width="12" stroke-linecap="round" fill="none"/>
-      <circle cx="17.5" cy="26"   r="4.8" fill="#27C9B6" opacity="0.55"/>
-      <circle cx="13.5" cy="33.5" r="3.2" fill="#27C9B6" opacity="0.30"/>
-      <circle cx="11"   cy="41.5" r="1.9" fill="#27C9B6" opacity="0.13"/>
-    </svg>
-    <span class="nav-logo-text">Oviq</span>
-  </a>
-  <div class="nav-links">
-    <a href="product.html">Product</a>
-    <a href="pricing.html">Pricing</a>
-    <a href="contact.html">Contact</a>
-  </div>
-  <a href="contact.html" class="btn-primary">
-    Book a demo
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-  </a>
-</nav>
-
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-grid"></div>
-  <div class="hero-glow"></div>
-  <div class="hero-inner">
-    <div class="hero-eyebrow fade-up d1">
-      <span class="hero-eyebrow-dot"></span>
-      Exception operations, on autopilot
-    </div>
-    <h1 class="fade-up d2">
-      We handle the first<br><em>80% of every</em><br>shipment problem.
-    </h1>
-    <p class="hero-sub fade-up d3">
-      Oviq detects, resolves, and communicates exceptions automatically —
-      escalating only what needs your judgment.
-    </p>
-    <div class="hero-actions fade-up d4">
-      <a href="contact.html" class="btn-primary">
-        Book a demo
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-      <a href="product.html" class="btn-outline">See how it works</a>
-    </div>
-    <div class="hero-stats fade-up d4">
-      <div class="hero-stat">
-        <span class="hero-stat-num">80%</span>
-        <span class="hero-stat-label">exceptions resolved automatically</span>
-      </div>
-      <div class="hero-stat">
-        <span class="hero-stat-num">3×</span>
-        <span class="hero-stat-label">freight per coordinator</span>
-      </div>
-      <div class="hero-stat">
-        <span class="hero-stat-num">&lt;2 min</span>
-        <span class="hero-stat-label">average response time</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- PROBLEM -->
-<section class="section problem">
-  <div class="section-inner">
-    <p class="section-label">The problem</p>
-    <h2 class="section-h2">Most logistics software<br>records. It doesn't resolve.</h2>
-    <p class="section-sub">Every exception triggers the same manual loop — over and over, at scale.</p>
-
-    <div class="problem-steps">
-      <div class="problem-step">
-        <span class="problem-step-num mono">01</span>
-        <span class="problem-step-text"><strong>Identify the issue</strong> — buried in a TMS dashboard no one checks in real time.</span>
-      </div>
-      <div class="problem-step">
-        <span class="problem-step-num mono">02</span>
-        <span class="problem-step-text"><strong>Contact the carrier</strong> — phone, email, repeat. No response for hours.</span>
-      </div>
-      <div class="problem-step">
-        <span class="problem-step-num mono">03</span>
-        <span class="problem-step-text"><strong>Notify the customer</strong> — manually, after you've already lost trust.</span>
-      </div>
-      <div class="problem-step">
-        <span class="problem-step-num mono">04</span>
-        <span class="problem-step-text"><strong>Update the TMS</strong> — because systems don't talk to each other.</span>
-      </div>
-      <div class="problem-step">
-        <span class="problem-step-num mono">05</span>
-        <span class="problem-step-text"><strong>Schedule follow-ups</strong> — then do it all again tomorrow.</span>
-      </div>
+    <div class="header">
+        <div class="logo">✨ Struk</div>
+        <button class="customize-toggle" id="customizeToggle">🎨 Customize</button>
     </div>
 
-    <div class="problem-stat-strip">
-      <div class="problem-stat-card">
-        <div class="problem-stat-num">4–6 hrs</div>
-        <div class="problem-stat-label">Average time an ops coordinator spends on exceptions per day</div>
-      </div>
-      <div class="problem-stat-card">
-        <div class="problem-stat-num">1:300</div>
-        <div class="problem-stat-label">Industry average — one coordinator per 300 monthly loads. Hiring is the only lever.</div>
-      </div>
-      <div class="problem-stat-card">
-        <div class="problem-stat-num">$0</div>
-        <div class="problem-stat-label">Value added by manual exception follow-up. It's pure operational cost.</div>
-      </div>
+    <div class="main-layout" id="mainLayout">
+        <!-- LEFT SIDEBAR: TEMPLATES -->
+        <div class="templates-sidebar">
+            <div class="sidebar-tabs">
+                <button class="tab active" data-tab="templates">Templates</button>
+                <button class="tab" data-tab="mystyles">My Styles</button>
+            </div>
+
+            <div class="sidebar-content">
+                <!-- TEMPLATES TAB -->
+                <div class="tab-content active" id="templates-content">
+                    <div class="template-card active" data-template="minimal">
+                        <span class="template-icon">🪶</span>
+                        <div class="template-name">Minimal Writer</div>
+                        <div class="template-desc">Clean whitespace, perfect for Notion or Substack</div>
+                        <div class="template-example">
+                            <div class="template-example-line"># Heading</div>
+                            <div class="template-example-line"></div>
+                            <div class="template-example-line">Clean paragraph.</div>
+                            <div class="template-example-line"></div>
+                            <div class="template-example-line">• Simple bullets</div>
+                        </div>
+                    </div>
+
+                    <div class="template-card" data-template="business">
+                        <span class="template-icon">📄</span>
+                        <div class="template-name">Business Clean</div>
+                        <div class="template-desc">Sans-serif, aligned bullets, great for reports</div>
+                        <div class="template-example">
+                            <div class="template-example-line">1. Executive Summary</div>
+                            <div class="template-example-line"></div>
+                            <div class="template-example-line">Key findings:</div>
+                            <div class="template-example-line">  • Point one</div>
+                            <div class="template-example-line">  • Point two</div>
+                        </div>
+                    </div>
+
+                    <div class="template-card" data-template="casual">
+                        <span class="template-icon">💬</span>
+                        <div class="template-name">Casual Chat</div>
+                        <div class="template-desc">Emoji-friendly, optimized for social content</div>
+                        <div class="template-example">
+                            <div class="template-example-line">Hey! 👋</div>
+                            <div class="template-example-line"></div>
+                            <div class="template-example-line">Quick thoughts:</div>
+                            <div class="template-example-line">→ First thing</div>
+                            <div class="template-example-line">→ Second thing</div>
+                        </div>
+                    </div>
+
+                    <div class="template-card" data-template="web">
+                        <span class="template-icon">🧱</span>
+                        <div class="template-name">Web Article</div>
+                        <div class="template-desc">H1/H2 hierarchy, clean Markdown for blogs</div>
+                        <div class="template-example">
+                            <div class="template-example-line"># Main Title</div>
+                            <div class="template-example-line"></div>
+                            <div class="template-example-line">## Section</div>
+                            <div class="template-example-line"></div>
+                            <div class="template-example-line">Content here...</div>
+                        </div>
+                    </div>
+
+                    <div class="template-card" data-template="email">
+                        <span class="template-icon">✉️</span>
+                        <div class="template-name">Email Safe</div>
+                        <div class="template-desc">Plain text, no weird spacing, Gmail-ready</div>
+                        <div class="template-example">
+                            <div class="template-example-line">Hi Team,</div>
+                            <div class="template-example-line"></div>
+                            <div class="template-example-line">Plain text format</div>
+                            <div class="template-example-line">- Simple dashes</div>
+                            <div class="template-example-line">- No fancy styling</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MY STYLES TAB -->
+                <div class="tab-content" id="mystyles-content">
+                    <div id="savedStylesList">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <p>No saved styles yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CENTER: INPUT/OUTPUT -->
+        <div class="center-workspace">
+            <div class="controls-bar">
+                <div class="output-format-group">
+                    <label class="output-format-label">OUTPUT FORMAT</label>
+                    <select class="format-selector" id="formatSelect">
+                        <option value="markdown">Markdown</option>
+                        <option value="html">HTML</option>
+                        <option value="plain">Plain Text</option>
+                    </select>
+                </div>
+
+                <button class="convert-btn" id="convertBtn">✨ Convert & Clean</button>
+            </div>
+
+            <div id="messageContainer"></div>
+
+            <div class="editor-split">
+                <div class="editor-panel input-panel">
+                    <div class="panel-header">INPUT</div>
+                    <div class="panel-content">
+                        <textarea 
+                            class="input-textarea" 
+                            id="inputText"
+                            placeholder="Paste your messy text here...
+
+Try pasting text with:
+• Extra    spaces    between    words
+• Weird
+
+
+line breaks
+• Inconsistent formatting
+
+Then click 'Convert & Clean' ✨"
+                        ></textarea>
+                        <div class="char-counter" id="charCounter">0 characters</div>
+                    </div>
+                    <div class="panel-footer">
+                        <button class="action-btn" onclick="document.getElementById('fileInput').click()">
+                            📄 Upload File
+                        </button>
+                        <input type="file" id="fileInput" style="display: none;" accept=".txt,.docx,.pdf">
+                    </div>
+                </div>
+
+                <div class="editor-panel">
+                    <div class="panel-header">GENERATED TEXT</div>
+                    <div class="panel-content">
+                        <div class="output-preview" id="outputPreview">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🎯</div>
+                                <p>Your beautifully formatted output will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel-footer" style="display: none;" id="outputActions">
+                        <button class="action-btn primary" onclick="copyOutput()">📋 Copy</button>
+                        <button class="action-btn" onclick="downloadOutput()">⬇️ Download</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR: CUSTOMIZATION -->
+        <div class="customization-sidebar">
+            <div class="sidebar-header">🎨 CUSTOMIZE</div>
+
+            <div class="customize-section">
+                <label class="customize-label">Font</label>
+                <select class="customize-input" id="fontSelect">
+                    <option value="Inter, sans-serif">Inter (Modern Sans)</option>
+                    <option value="Georgia, serif">Georgia (Classic Serif)</option>
+                    <option value="'SF Mono', monospace">SF Mono (Code Style)</option>
+                    <option value="Merriweather, serif">Merriweather (Reading)</option>
+                </select>
+            </div>
+
+            <div class="customize-section">
+                <label class="customize-label">Font Size</label>
+                <select class="customize-input" id="sizeSelect">
+                    <option value="14px">14px (Small)</option>
+                    <option value="16px" selected>16px (Standard)</option>
+                    <option value="18px">18px (Large)</option>
+                    <option value="20px">20px (Extra Large)</option>
+                </select>
+            </div>
+
+            <div class="customize-section">
+                <label class="customize-label">Line Height</label>
+                <select class="customize-input" id="lineHeightSelect">
+                    <option value="1.4">1.4 (Tight)</option>
+                    <option value="1.6">1.6 (Normal)</option>
+                    <option value="1.8" selected>1.8 (Relaxed)</option>
+                    <option value="2.0">2.0 (Loose)</option>
+                </select>
+            </div>
+
+            <div class="customize-section">
+                <label class="customize-label">Bullet Style</label>
+                <div class="bullet-options">
+                    <button class="bullet-option active" data-bullet="•">•</button>
+                    <button class="bullet-option" data-bullet="-">-</button>
+                    <button class="bullet-option" data-bullet="→">→</button>
+                    <button class="bullet-option" data-bullet="✓">✓</button>
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <div class="preview-label">📋 LIVE PREVIEW</div>
+                <div class="mini-preview" id="miniPreview">
+                    <!-- Content will be generated dynamically based on template + style -->
+                </div>
+            </div>
+
+            <button class="save-style-btn" id="saveStyleBtn">💾 Save as My Style</button>
+        </div>
     </div>
-  </div>
-</section>
 
-<!-- HOW IT WORKS -->
-<section class="section" id="how-it-works">
-  <div class="section-inner">
-    <p class="section-label">How it works</p>
-    <h2 class="section-h2">From exception to resolved.<br>Without touching it.</h2>
-    <p class="section-sub">Upload a CSV or connect your TMS. Oviq runs continuously from there.</p>
-    <div class="steps-grid">
-      <div class="step-card">
-        <span class="step-num mono">01</span>
-        <div class="step-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        </div>
-        <h3>Detect</h3>
-        <p>Oviq ingests your shipment data and continuously evaluates every load for missed pickups, delays, missing PODs, and more.</p>
-      </div>
-      <div class="step-card">
-        <span class="step-num mono">02</span>
-        <div class="step-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-        </div>
-        <h3>Case opened</h3>
-        <p>Every exception becomes a managed Case — with full context, priority, timeline, and a resolution playbook assigned automatically.</p>
-      </div>
-      <div class="step-card">
-        <span class="step-num mono">03</span>
-        <div class="step-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
-        </div>
-        <h3>AI resolves</h3>
-        <p>Oviq contacts the carrier, notifies the customer, requests ETAs, and logs every action — all within minutes of detection.</p>
-      </div>
-      <div class="step-card">
-        <span class="step-num mono">04</span>
-        <div class="step-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <h3>Escalate only when needed</h3>
-        <p>Unresponsive carriers, financial exposure, customer negotiations — Oviq escalates with full context so your team acts immediately.</p>
-      </div>
-    </div>
-  </div>
-</section>
+    <script>
+        // Configuration
+        const API_URL = 'https://fearless-liberation-production.up.railway.app';
+        
+        // State
+        let currentTemplate = 'minimal';
+        let currentOutput = '';
+        let savedStyles = JSON.parse(localStorage.getItem('savedStyles') || '[]');
+        let currentSavedStyleIndex = null;
 
-<!-- FEATURES -->
-<section class="section" style="padding-top:0;">
-  <div class="section-inner">
-    <p class="section-label">Capabilities</p>
-    <h2 class="section-h2">Everything your ops team<br>does manually. Automated.</h2>
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        </div>
-        <h3>Exception detection</h3>
-        <p>Missed pickups, transit delays, late deliveries, missing PODs, and unresponsive carriers — detected the moment data changes.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
-        </div>
-        <h3>Automated communications</h3>
-        <p>AI-drafted emails to carriers and customers sent immediately. Every message logged. No more manual follow-ups.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        </div>
-        <h3>Resolution playbooks</h3>
-        <p>Configurable step-by-step workflows per exception type. Oviq executes them — you define the rules once.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-        </div>
-        <h3>Case management</h3>
-        <p>Every problem is a Case. Full timeline, audit trail, communication history, and AI action log — all in one place.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        </div>
-        <h3>Smart escalation</h3>
-        <p>Oviq escalates only when carrier is unresponsive, financial thresholds are crossed, or human judgment is genuinely needed.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#27C9B6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        </div>
-        <h3>TMS-agnostic</h3>
-        <p>Keep using McLeod, Aljex, or Ascend. Oviq sits on top via CSV upload today, with direct integration in V2.</p>
-      </div>
-    </div>
-  </div>
-</section>
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updatePreview();
+            renderSavedStyles();
+            console.log('Initialized. Current saved style index:', currentSavedStyleIndex);
+        });
 
-<!-- SOCIAL PROOF -->
-<section class="section proof">
-  <div class="section-inner">
-    <div class="proof-inner">
-      <p class="section-label" style="text-align:center;">Early access</p>
-      <h2 class="section-h2" style="text-align:center;">Built with ops teams,<br>not around them.</h2>
-      <div class="proof-quote">
-        <span class="proof-quote-mark">"</span>
-        <p class="proof-quote-text">
-          We were hiring a new coordinator every time volume grew. Oviq changed that math completely — same team, handling three times the freight.
-        </p>
-        <div class="proof-attribution">
-          <div class="proof-avatar">JR</div>
-          <div>
-            <div class="proof-author-name">J. Reynolds</div>
-            <div class="proof-author-role">VP Operations, mid-sized freight brokerage</div>
-          </div>
-        </div>
-      </div>
-      <div class="proof-stats">
-        <div class="proof-stat">
-          <div class="proof-stat-num">80%</div>
-          <div class="proof-stat-label">exceptions auto-resolved</div>
-        </div>
-        <div class="proof-stat">
-          <div class="proof-stat-num">3×</div>
-          <div class="proof-stat-label">loads per coordinator</div>
-        </div>
-        <div class="proof-stat">
-          <div class="proof-stat-num">&lt;2 min</div>
-          <div class="proof-stat-label">first response time</div>
-        </div>
-        <div class="proof-stat">
-          <div class="proof-stat-num">$0</div>
-          <div class="proof-stat-label">additional headcount</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+        // Toggle customization sidebar
+        document.getElementById('customizeToggle').addEventListener('click', () => {
+            const mainLayout = document.getElementById('mainLayout');
+            const toggle = document.getElementById('customizeToggle');
+            
+            mainLayout.classList.toggle('sidebar-open');
+            toggle.classList.toggle('active');
+            toggle.textContent = toggle.classList.contains('active') ? '✕ Close' : '🎨 Customize';
+        });
 
-<!-- PRICING PREVIEW -->
-<section class="section" id="pricing">
-  <div class="section-inner">
-    <p class="section-label">Pricing</p>
-    <h2 class="section-h2">Simple, volume-based pricing.</h2>
-    <p class="section-sub">No setup fees. No long-term contracts. Cancel any time.</p>
-    <div class="pricing-grid">
-      <div class="pricing-card">
-        <div class="pricing-tier">Starter</div>
-        <div class="pricing-price"><sup>$</sup>299</div>
-        <div class="pricing-price-sub">per month</div>
-        <div class="pricing-volume">Up to 500 loads / month</div>
-        <ul class="pricing-features">
-          <li><span class="check">✓</span> Exception detection (6 types)</li>
-          <li><span class="check">✓</span> Automated carrier emails</li>
-          <li><span class="check">✓</span> Customer notifications</li>
-          <li><span class="check">✓</span> Case management dashboard</li>
-          <li><span class="check">✓</span> CSV import</li>
-        </ul>
-        <a href="contact.html" class="pricing-btn pricing-btn-outline">Get started</a>
-      </div>
-      <div class="pricing-card featured">
-        <div class="pricing-featured-pill">MOST POPULAR</div>
-        <div class="pricing-tier">Growth</div>
-        <div class="pricing-price"><sup>$</sup>799</div>
-        <div class="pricing-price-sub">per month</div>
-        <div class="pricing-volume">Up to 5,000 loads / month</div>
-        <ul class="pricing-features">
-          <li><span class="check">✓</span> Everything in Starter</li>
-          <li><span class="check">✓</span> Custom resolution playbooks</li>
-          <li><span class="check">✓</span> Escalation rules config</li>
-          <li><span class="check">✓</span> Multi-user access</li>
-          <li><span class="check">✓</span> Priority support</li>
-        </ul>
-        <a href="contact.html" class="pricing-btn pricing-btn-fill">Book a demo</a>
-      </div>
-      <div class="pricing-card">
-        <div class="pricing-tier">Professional</div>
-        <div class="pricing-price"><sup>$</sup>1,999</div>
-        <div class="pricing-price-sub">per month</div>
-        <div class="pricing-volume">Up to 20,000 loads / month</div>
-        <ul class="pricing-features">
-          <li><span class="check">✓</span> Everything in Growth</li>
-          <li><span class="check">✓</span> TMS direct integration (V2)</li>
-          <li><span class="check">✓</span> Custom exception types</li>
-          <li><span class="check">✓</span> Dedicated onboarding</li>
-          <li><span class="check">✓</span> SLA reporting + API access</li>
-        </ul>
-        <a href="contact.html" class="pricing-btn pricing-btn-outline">Contact sales</a>
-      </div>
-    </div>
-    <p style="text-align:center; font-size:13px; color:var(--text-3); margin-top:1.25rem;">
-      Need custom volume? <a href="contact.html" style="color:var(--aqua); text-decoration:none;">Talk to us →</a>
-    </p>
-  </div>
-</section>
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabName = tab.getAttribute('data-tab');
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tabName + '-content').classList.add('active');
+            });
+        });
 
-<!-- CTA -->
-<section class="cta-strip">
-  <div class="section-inner">
-    <h2 class="cta-h2">Resolve before<br>it <em>reaches you.</em></h2>
-    <p class="cta-sub">Join freight brokerages already handling more freight with the same team.</p>
-    <div class="hero-actions">
-      <a href="contact.html" class="btn-primary">
-        Book a demo
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      </a>
-      <a href="product.html" class="btn-outline">See how it works</a>
-    </div>
-  </div>
-</section>
+        // Template selection
+        document.querySelectorAll('.template-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.template-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                currentTemplate = card.getAttribute('data-template');
+                currentSavedStyleIndex = null; // Clear saved style selection
+                renderSavedStyles(); // Update My Styles tab to remove active state
+                updatePreview(); // Update preview when template changes
+            });
+        });
 
-<!-- FOOTER -->
-<footer>
-  <a href="/" class="footer-logo">
-    <svg width="22" height="22" viewBox="-8 -8 116 116" fill="none">
-      <path d="M 50 8 A 42 42 0 0 1 92 50 A 42 42 0 0 1 50 92 A 42 42 0 0 1 8 50 A 42 42 0 0 1 22.5 19.5" stroke="#27C9B6" stroke-width="12" stroke-linecap="round" fill="none"/>
-      <circle cx="17.5" cy="26"   r="4.8" fill="#27C9B6" opacity="0.55"/>
-      <circle cx="13.5" cy="33.5" r="3.2" fill="#27C9B6" opacity="0.30"/>
-      <circle cx="11"   cy="41.5" r="1.9" fill="#27C9B6" opacity="0.13"/>
-    </svg>
-    <span class="footer-logo-text">Oviq</span>
-  </a>
-  <div class="footer-links">
-    <a href="product.html">Product</a>
-    <a href="pricing.html">Pricing</a>
-    <a href="contact.html">Contact</a>
-    <a href="#">Privacy</a>
-    <a href="#">Terms</a>
-  </div>
-  <p class="footer-copy">© 2026 Oviq. All rights reserved.</p>
-</footer>
+        // Bullet selection
+        document.querySelectorAll('.bullet-option').forEach(option => {
+            option.addEventListener('click', () => {
+                document.querySelectorAll('.bullet-option').forEach(o => o.classList.remove('active'));
+                option.classList.add('active');
+                updatePreview();
+            });
+        });
 
+        // Character counter
+        document.getElementById('inputText').addEventListener('input', (e) => {
+            document.getElementById('charCounter').textContent = e.target.value.length.toLocaleString() + ' characters';
+        });
+
+        // Template preview structures
+        const templatePreviews = {
+            minimal: {
+                html: `
+                    <h3 style="margin-bottom: 0.75rem; font-weight: 600;">Main Heading</h3>
+                    <p style="margin-bottom: 0.75rem; line-height: 1.6;">Clean paragraph with generous whitespace. This is how your content will appear with minimal styling.</p>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">• </span>Simple bullet point</li>
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">• </span>Another item</li>
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">• </span>Third point</li>
+                    </ul>
+                `
+            },
+            business: {
+                html: `
+                    <h3 style="margin-bottom: 0.5rem; font-weight: 600;">1. Executive Summary</h3>
+                    <p style="margin-bottom: 0.75rem; line-height: 1.6;">Formal business format with numbered sections and structured content.</p>
+                    <p style="margin-bottom: 0.5rem; font-weight: 500;">Key Points:</p>
+                    <ul style="list-style: none; padding: 0; padding-left: 1rem;">
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">• </span>Aligned bullet point</li>
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">• </span>Professional spacing</li>
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">• </span>Clear hierarchy</li>
+                    </ul>
+                `
+            },
+            casual: {
+                html: `
+                    <h3 style="margin-bottom: 0.75rem; font-weight: 600;">Hey there! 👋</h3>
+                    <p style="margin-bottom: 0.75rem; line-height: 1.6;">Friendly, conversational tone with emoji support. Perfect for social content!</p>
+                    <p style="margin-bottom: 0.5rem;">Quick thoughts:</p>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">→ </span>Casual formatting</li>
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">→ </span>Emoji-friendly</li>
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">→ </span>Social ready</li>
+                    </ul>
+                `
+            },
+            web: {
+                html: `
+                    <h2 style="margin-bottom: 0.75rem; font-weight: 700; font-size: 1.25rem;">Article Title</h2>
+                    <h3 style="margin-bottom: 0.5rem; font-weight: 600; font-size: 1.1rem;">Section Heading</h3>
+                    <p style="margin-bottom: 0.75rem; line-height: 1.6;">Clean Markdown structure with H1/H2 hierarchy. Optimized for blogs and web publishing.</p>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">• </span>Web-optimized</li>
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">• </span>Clear hierarchy</li>
+                    </ul>
+                `
+            },
+            email: {
+                html: `
+                    <p style="margin-bottom: 0.75rem; line-height: 1.6; font-weight: 500;">Hi Team,</p>
+                    <p style="margin-bottom: 0.75rem; line-height: 1.6;">Plain text format with simple dashes. No fancy styling that breaks in email clients.</p>
+                    <p style="margin-bottom: 0.5rem;">Action items:</p>
+                    <ul style="list-style: none; padding: 0;">
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">- </span>Gmail-safe formatting</li>
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">- </span>Plain text style</li>
+                        <li style="margin-bottom: 0.5rem;"><span class="bullet-char">- </span>Universal compatibility</li>
+                    </ul>
+                `
+            }
+        };
+
+        // Update mini preview
+        function updatePreview() {
+            const font = document.getElementById('fontSelect').value;
+            const size = document.getElementById('sizeSelect').value;
+            const lineHeight = document.getElementById('lineHeightSelect').value;
+            const bullet = document.querySelector('.bullet-option.active').getAttribute('data-bullet');
+
+            const preview = document.getElementById('miniPreview');
+            
+            // Get template structure
+            const templateHTML = templatePreviews[currentTemplate].html;
+            preview.innerHTML = templateHTML;
+
+            // Apply customization styles
+            preview.style.fontFamily = font;
+            preview.style.fontSize = size;
+            
+            // Apply line height to paragraphs
+            preview.querySelectorAll('p').forEach(p => {
+                p.style.lineHeight = lineHeight;
+            });
+
+            // Update bullet characters (except email template which uses dashes)
+            if (currentTemplate !== 'email') {
+                preview.querySelectorAll('.bullet-char').forEach(char => {
+                    char.textContent = bullet + ' ';
+                });
+            }
+        }
+
+        // Listen for customization changes
+        ['fontSelect', 'sizeSelect', 'lineHeightSelect'].forEach(id => {
+            document.getElementById(id).addEventListener('change', updatePreview);
+        });
+
+        // Convert text
+        document.getElementById('convertBtn').addEventListener('click', async () => {
+            const input = document.getElementById('inputText').value;
+            const format = document.getElementById('formatSelect').value;
+            const messageContainer = document.getElementById('messageContainer');
+            const convertBtn = document.getElementById('convertBtn');
+            const outputPreview = document.getElementById('outputPreview');
+
+            messageContainer.innerHTML = '';
+
+            if (!input.trim()) {
+                showMessage('⚠️ Please paste some text first!', 'error');
+                return;
+            }
+
+            convertBtn.disabled = true;
+            convertBtn.textContent = '⏳ Converting...';
+            outputPreview.innerHTML = '<div class="loading"><div class="spinner"></div> Processing your text...</div>';
+
+            try {
+                const response = await fetch(API_URL + '/api/convert', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: input,
+                        template: currentTemplate,
+                        format: format,
+                        customization: {
+                            font: document.getElementById('fontSelect').value,
+                            size: document.getElementById('sizeSelect').value,
+                            lineHeight: document.getElementById('lineHeightSelect').value,
+                            bullet: document.querySelector('.bullet-option.active').getAttribute('data-bullet')
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error('API returned ' + response.status);
+
+                const data = await response.json();
+
+                if (data.success) {
+                    currentOutput = data.output;
+                    outputPreview.textContent = data.output;
+                    document.getElementById('outputActions').style.display = 'flex';
+                    showMessage('✅ Text converted successfully!', 'success');
+                } else {
+                    throw new Error(data.error || 'Conversion failed');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('❌ Error: ' + error.message + '. Make sure backend is running on port 8000.', 'error');
+                outputPreview.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>Conversion failed</p></div>';
+            } finally {
+                convertBtn.disabled = false;
+                convertBtn.textContent = '✨ Convert & Clean';
+            }
+        });
+
+        // Show message
+        function showMessage(text, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `<div class="${type}">${text}</div>`;
+            setTimeout(() => {
+                messageContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // Copy output
+        function copyOutput() {
+            navigator.clipboard.writeText(currentOutput).then(() => {
+                showMessage('✅ Copied to clipboard!', 'success');
+            });
+        }
+
+        // Download output
+        function downloadOutput() {
+            const format = document.getElementById('formatSelect').value;
+            const extension = format === 'markdown' ? 'md' : (format === 'html' ? 'html' : 'txt');
+            
+            const blob = new Blob([currentOutput], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'formatted-text.' + extension;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // File upload
+        document.getElementById('fileInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = '<div class="loading"><div class="spinner"></div> Uploading file...</div>';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch(API_URL + '/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    document.getElementById('inputText').value = data.text;
+                    document.getElementById('charCounter').textContent = data.text.length.toLocaleString() + ' characters';
+                    showMessage('✅ File uploaded successfully!', 'success');
+                } else {
+                    throw new Error(data.error);
+                }
+
+            } catch (error) {
+                showMessage('❌ Upload failed: ' + error.message, 'error');
+            }
+        });
+
+        // Save custom style
+        document.getElementById('saveStyleBtn').addEventListener('click', () => {
+            const styleName = prompt('Enter a name for this style:');
+            if (!styleName) return;
+
+            const newStyle = {
+                name: styleName,
+                template: currentTemplate, // Save the template!
+                font: document.getElementById('fontSelect').value,
+                size: document.getElementById('sizeSelect').value,
+                lineHeight: document.getElementById('lineHeightSelect').value,
+                bullet: document.querySelector('.bullet-option.active').getAttribute('data-bullet'),
+                created: new Date().toISOString()
+            };
+
+            savedStyles.push(newStyle);
+            localStorage.setItem('savedStyles', JSON.stringify(savedStyles));
+            renderSavedStyles();
+            showMessage('✅ Style saved successfully!', 'success');
+        });
+
+        // Render saved styles
+        function renderSavedStyles() {
+            const container = document.getElementById('savedStylesList');
+            
+            if (savedStyles.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📦</div><p>No saved styles yet</p></div>';
+                return;
+            }
+
+            const templateNames = {
+                minimal: 'Minimal Writer',
+                business: 'Business Clean',
+                casual: 'Casual Chat',
+                web: 'Web Article',
+                email: 'Email Safe'
+            };
+
+            container.innerHTML = savedStyles.map((style, index) => `
+                <div class="saved-style-card ${currentSavedStyleIndex === index ? 'active' : ''}" onclick="loadStyle(${index})">
+                    <div class="saved-style-name">${style.name}</div>
+                    <div class="saved-style-meta">
+                        ${templateNames[style.template] || style.template} • ${style.font.split(',')[0]} • ${style.size}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Load saved style
+        function loadStyle(index) {
+            const style = savedStyles[index];
+            
+            // Track which saved style is active
+            currentSavedStyleIndex = index;
+            console.log('Loading style index:', index, 'Current index is now:', currentSavedStyleIndex);
+            
+            // Load template (silently - just update the state and active card)
+            currentTemplate = style.template;
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('active');
+                if (card.getAttribute('data-template') === style.template) {
+                    card.classList.add('active');
+                }
+            });
+            
+            // Load customization
+            document.getElementById('fontSelect').value = style.font;
+            document.getElementById('sizeSelect').value = style.size;
+            document.getElementById('lineHeightSelect').value = style.lineHeight;
+            
+            // Update bullets silently
+            document.querySelectorAll('.bullet-option').forEach(opt => {
+                opt.classList.remove('active');
+                if (opt.getAttribute('data-bullet') === style.bullet) {
+                    opt.classList.add('active');
+                }
+            });
+
+            updatePreview();
+            renderSavedStyles(); // Re-render to show active state
+            console.log('After render, checking active class...');
+            showMessage('✅ Style loaded: ' + style.name, 'success');
+            
+            // Stay on My Styles tab - don't switch
+            // If customize sidebar isn't open, optionally open it so they can see what was loaded
+            if (!document.getElementById('mainLayout').classList.contains('sidebar-open')) {
+                document.getElementById('customizeToggle').click();
+            }
+        }
+    </script>
 </body>
 </html>

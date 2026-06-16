@@ -23,7 +23,7 @@ function statusBadge(status: string) {
   const map: Record<string, { label: string; cls: string }> = {
     open:          { label: 'Open',         cls: 'badge gray' },
     ai_resolving:  { label: 'AI resolving', cls: 'badge teal' },
-    pending_human: { label: 'Needs human',  cls: 'badge amber' },
+    pending_human: { label: 'Needs human',  cls: 'badge red' },
     escalated:     { label: 'Escalated',    cls: 'badge red' },
     resolved:      { label: 'Resolved',     cls: 'badge teal' },
     closed:        { label: 'Closed',       cls: 'badge gray' },
@@ -34,7 +34,7 @@ function statusBadge(status: string) {
 
 function priorityBadge(priority: string) {
   if (!priority) return null
-  const map: Record<string, string> = { critical: 'badge red', high: 'badge amber', medium: 'badge gray', low: 'badge gray' }
+  const map: Record<string, string> = { critical: 'badge red', high: 'badge red', medium: 'badge gray', low: 'badge gray' }
   const labels: Record<string, string> = { critical: 'SEV-1', high: 'SEV-2', medium: 'SEV-3', low: 'SEV-3' }
   return <span className={map[priority] || 'badge gray'}>{labels[priority] || priority.toUpperCase()}</span>
 }
@@ -217,7 +217,7 @@ export default function CaseDetailPage() {
                   <div className="mrow bd">
                     <span className="k">Status</span>
                     <span className="v">
-                      <span className="badge amber" style={{fontSize:11}}>
+                      <span className="badge red" style={{fontSize:11}}>
                         <span className="dot" /> {shipment.status === 'exception' || exceptions.length > 0 ? 'Exception' : shipment.status}
                       </span>
                     </span>

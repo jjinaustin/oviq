@@ -35,7 +35,7 @@ function statusBadge(status: string) {
   const map: Record<string, { label: string; cls: string }> = {
     open:          { label: 'Open',         cls: 'badge gray' },
     ai_resolving:  { label: 'AI resolving', cls: 'badge teal' },
-    pending_human: { label: 'Needs human',  cls: 'badge amber' },
+    pending_human: { label: 'Needs human',  cls: 'badge red' },
     escalated:     { label: 'Escalated',    cls: 'badge red' },
     resolved:      { label: 'Resolved',     cls: 'badge teal' },
     closed:        { label: 'Closed',       cls: 'badge gray' },
@@ -125,7 +125,7 @@ export default function DashboardPage() {
           <h1>{getGreeting()}, {firstName}</h1>
           <div className="sub">
             {loading ? '—' : cases.length === 0
-              ? 'No shipments yet — import a CSV to get started'
+              ? 'No shipments yet — connect your TMS to get started'
               : `${totalOpen.length} open · ${resolved.length} resolved today`
             }
           </div>
