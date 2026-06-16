@@ -169,8 +169,11 @@ class IngestService:
                     skipped += 1
                     continue
 
-                new_cases = await self.detector.evaluate(result)
+               new_cases = await self.detector.evaluate(result)
                 cases_opened += len(new_cases)
+                for case_id in new_cases:
+                    from app.services.playbook_runner import PlaybookRunner
+                    await PlaybookRunner().run_for_case(case_id)
 
             except Exception as e:
                 logger.error(f"[ingest] Row error for org {org_id}: {e}")
@@ -266,6 +269,9 @@ class IngestService:
             if refreshed.data:
                 new_cases = await self.detector.evaluate(refreshed.data)
                 cases_opened = len(new_cases)
+                for case_id in new_cases:
+                    from app.services.playbook_runner import PlaybookRunner
+                    await PlaybookRunner().run_for_case(case_id)
 
         return {
             "relevant": True,
