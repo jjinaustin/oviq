@@ -138,9 +138,9 @@ a { text-decoration: none; }
 .need .ctx { font-size: 13px; color: var(--body); margin-top: 6px; line-height: 1.5; max-width: 480px; }
 .need .acts { display: flex; align-items: center; gap: 9px; margin-top: 16px; }
 .need .acts .ago { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--faint); }
-.dark-card { background: var(--ink); border-radius: 16px; padding: 22px; }
-.dark-card .h { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--bone); }
-.dark-card p { font-size: 13px; color: rgba(247,245,239,.6); line-height: 1.5; margin-top: 12px; }
+.dark-card { background: var(--mist); border-radius: 16px; padding: 22px; border: 1px solid rgba(14,142,124,0.15); }
+.dark-card .h { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; color: var(--teal-deep); }
+.dark-card p { font-size: 13px; color: var(--body); line-height: 1.5; margin-top: 12px; }
 
 /* ── Tables ── */
 .panel { background: var(--paper); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
