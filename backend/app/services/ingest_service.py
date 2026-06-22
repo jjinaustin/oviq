@@ -181,6 +181,13 @@ class IngestService:
                 logger.error(f"[ingest] Row error for org {org_id}: {e}")
                 errors += 1
 
+        # Update report monitor so it knows today's report arrived
+        try:
+            from app.services.report_monitor import ReportMonitor
+            ReportMonitor().update_last_received(org_id, source_file_id or "")
+        except Exception as e:
+            logger.warning(f"[ingest] Could not update report monitor: {e}")
+
         return {
             "shipments_created": created,
             "shipments_updated": updated,

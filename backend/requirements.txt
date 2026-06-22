@@ -16,3 +16,4 @@ pytest==8.2.0
 pytest-asyncio==0.23.6
 stripe==8.9.0
 stripe==8.9.0
+apscheduler==3.10.4
