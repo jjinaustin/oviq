@@ -34,7 +34,7 @@ Reply directly to this email to respond to {req.first_name}.
 """
     try:
         resend.Emails.send({
-            "from": settings.EMAIL_FROM,
+            "from": "Oviq <ops@notify.oviq.io>",
             "to": "hello@oviq.io",
             "reply_to": req.email,
             "subject": f"Demo request — {req.company} ({req.first_name} {req.last_name})",
