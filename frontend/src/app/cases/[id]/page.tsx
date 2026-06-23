@@ -123,7 +123,7 @@ export default function CaseDetailPage() {
                           {i < events.length - 1 && <span className="line" />}
                         </div>
                         <div className="tl-body">
-                          <div className="t">{(ev as any).description || ev.event_type?.replace(/_/g,' ')}</div>
+                          <div className="t">{(ev as any).summary || ev.event_type?.replace(/_/g,' ')}</div>
                           <div className="meta">
                             {ev.created_at ? new Date(ev.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : ''}
                             {ev.actor === 'ai' && (
