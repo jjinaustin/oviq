@@ -58,7 +58,7 @@ export default function CaseDetailPage() {
   const tasks = c.tasks || []
   const comms = c.communications || []
   const aiActions = c.ai_actions || []
-  const isAI = c.assigned_to === 'ai' || c.status === 'ai_resolving'
+  const isAI = c.status === 'ai_resolving'
   const assigneeName = c.assigned_to && c.assigned_to !== 'ai' ? c.assigned_to : null
   const assigneeInitials = assigneeName ? assigneeName.split(' ').map((n:string)=>n[0]).join('').slice(0,2).toUpperCase() : null
 
