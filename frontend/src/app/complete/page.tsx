@@ -1,5 +1,7 @@
 'use client'
+export const dynamic = 'force-dynamic'
 import { useSearchParams } from 'next/navigation'
+import { Suspense } from 'react'
 
 function OviqMark() {
   return (
@@ -26,7 +28,7 @@ function OviqMark() {
   )
 }
 
-export default function CompletePage() {
+function CompletePageInner() {
   const searchParams  = useSearchParams()
   const name          = searchParams.get('name') || 'there'
   const firstName     = name.split(' ')[0]
@@ -189,5 +191,12 @@ export default function CompletePage() {
         </span>
       </footer>
     </div>
+  )
+}
+export default function CompletePage() {
+  return (
+    <Suspense fallback={<div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bone)'}}>Loading...</div>}>
+      <CompletePageInner />
+    </Suspense>
   )
 }

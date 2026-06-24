@@ -1,5 +1,6 @@
 'use client'
-import { useEffect, useState, useRef } from 'react'
+export const dynamic = 'force-dynamic'
+import { useEffect, useState, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -397,7 +398,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function JoinPage() {
+function JoinPageInner() {
   const searchParams  = useSearchParams()
   const sessionToken  = searchParams.get('session')
 
@@ -471,4 +472,11 @@ export default function JoinPage() {
   }
 
   return <LoadingScreen />
+}
+export default function JoinPage() {
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <JoinPageInner />
+    </Suspense>
+  )
 }
