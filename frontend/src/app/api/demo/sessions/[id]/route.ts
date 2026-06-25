@@ -42,11 +42,11 @@ async function createTavusConversation(session: {
       persona_id:             process.env.TAVUS_PERSONA_ID!,
       conversation_name:      `Oviq Demo — ${session.prospect_name}${session.brokerage_name ? ` · ${session.brokerage_name}` : ''}`,
       conversational_context: context,
-      properties: {
-        max_call_duration: 2400, enable_recording: true,
-        participant_absent_timeout: 300, participant_left_timeout: 120,
-        callback_url: `${process.env.NEXT_PUBLIC_DEMO_BASE_URL}/api/demo/webhook`,
-      },
+    callback_url: `${process.env.NEXT_PUBLIC_DEMO_BASE_URL}/api/demo/webhook`,
+    properties: {
+    max_call_duration: 2400, enable_recording: true,
+    participant_absent_timeout: 300, participant_left_timeout: 120,
+    },
     }),
   })
   if (!res.ok) throw new Error(`Tavus API error: ${await res.text()}`)
