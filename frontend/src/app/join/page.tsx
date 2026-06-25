@@ -393,6 +393,14 @@ function LiveScreen({ session }: { session: SessionData }) {
   const isLast = stageIndex === STAGES.length - 1
   const firstName = session.prospect_name.split(' ')[0]
 
+  // Auto-advance through Stage 1 — verbal setup only, no product shown
+  useEffect(() => {
+    if (currentStage.key === 'context') {
+      const timer = setTimeout(() => setStageIndex(i => i + 1), 4000)
+      return () => clearTimeout(timer)
+    }
+  }, [currentStage.key])
+
   function advance() {
     if (!isLast) setStageIndex(i => i + 1)
   }
