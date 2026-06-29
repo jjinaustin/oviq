@@ -19,12 +19,30 @@ function buildOpeningContext(session: {
   lines.push(`Begin with Stage 0: Discovery. Greet ${prospect_name} by name. Even if you already have some context from their booking, confirm and deepen it with the four discovery questions.`)
   lines.push(`Use their exact words about pain points as ammunition throughout the demo.`)
   if (loads_per_month) {
-    const exceptions = Math.round(loads_per_month * 0.1)
-    const hours = Math.round(exceptions * (20 / 60))
-    const saved = Math.round(hours * 0.8)
-    const laborSavings = Math.round(saved * 37.5)
+    // Tiered math matching the system prompt
+    let exceptionRate = 0.10
+    let minsPerException = 20
+    let hourlyRate = 50
+    let planCost = 299
+
+    if (loads_per_month < 200) {
+      exceptionRate = 0.08; minsPerException = 15; hourlyRate = 50; planCost = 299
+    } else if (loads_per_month < 500) {
+      exceptionRate = 0.10; minsPerException = 20; hourlyRate = 50; planCost = 299
+    } else if (loads_per_month < 2000) {
+      exceptionRate = 0.12; minsPerException = 20; hourlyRate = 50; planCost = 799
+    } else {
+      exceptionRate = 0.15; minsPerException = 25; hourlyRate = 50; planCost = 1999
+    }
+
+    const exceptions   = Math.round(loads_per_month * exceptionRate)
+    const hours        = Math.round(exceptions * (minsPerException / 60))
+    const saved        = Math.round(hours * 0.8)
+    const laborSavings = Math.round(saved * hourlyRate)
+    const netSavings   = laborSavings - planCost
+
     lines.push(``, `MATH READY FOR STAGE 9:`)
-    lines.push(`${loads_per_month.toLocaleString()} loads → ${exceptions} exceptions → ${hours} hrs/mo → Oviq saves ${saved} hrs → ~$${laborSavings.toLocaleString()}/mo at $37.50/hr`)
+    lines.push(`${loads_per_month.toLocaleString()} loads → ${exceptions} exceptions → ${hours} hrs/mo → Oviq saves ${saved} hrs → $${laborSavings.toLocaleString()} labor savings → minus $${planCost} plan = ~$${netSavings.toLocaleString()} net savings/mo`)
   }
   return lines.join('\n')
 }
