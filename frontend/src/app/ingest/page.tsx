@@ -85,6 +85,21 @@ export default function IngestPage() {
               <input ref={inputRef} type="file" accept=".csv" className="hidden"
                 onChange={e => setFile(e.target.files?.[0] || null)} />
 
+              <div className="rounded-lg border p-4 mb-4" style={{ background: 'var(--mist)', borderColor: 'var(--aqua)', borderWidth: '1px' }}>
+                <p className="text-xs font-semibold mb-1" style={{ color: 'var(--text-2)' }}>Or email your CSV directly</p>
+                <p className="text-xs mb-2" style={{ color: 'var(--text-3)' }}>Send your TMS export to this address and Oviq will process it automatically:</p>
+                <div className="flex items-center gap-2 p-2 rounded" style={{ background: 'var(--surface)', border: '1px solid var(--border)' }}>
+                  <code className="text-xs font-mono flex-1" style={{ color: 'var(--aqua)' }}>test-brokerage-x7f3@ingest.oviq.io</code>
+                  <button
+                    onClick={() => navigator.clipboard.writeText('test-brokerage-x7f3@ingest.oviq.io')}
+                    className="text-xs px-2 py-1 rounded"
+                    style={{ background: 'var(--surface-2)', color: 'var(--text-3)', border: '1px solid var(--border)', cursor: 'pointer' }}
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+
               <div className="rounded-lg border p-4 mb-4" style={{ background: 'var(--surface)', borderColor: 'var(--border)' }}>
                 <p className="text-xs font-semibold mb-2" style={{ color: 'var(--text-2)' }}>Expected columns</p>
                 <div className="flex flex-wrap gap-2">

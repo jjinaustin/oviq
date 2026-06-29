@@ -25,11 +25,11 @@ function buildOpeningContext(session: {
     let hourlyRate = 50
     let planCost = 299
 
-    if (loads_per_month < 200) {
+    if (loads_per_month < 300) {
       exceptionRate = 0.08; minsPerException = 15; hourlyRate = 50; planCost = 299
     } else if (loads_per_month < 500) {
       exceptionRate = 0.10; minsPerException = 20; hourlyRate = 50; planCost = 299
-    } else if (loads_per_month < 2000) {
+    } else if (loads_per_month < 5000) {
       exceptionRate = 0.12; minsPerException = 20; hourlyRate = 50; planCost = 799
     } else {
       exceptionRate = 0.15; minsPerException = 25; hourlyRate = 50; planCost = 1999
