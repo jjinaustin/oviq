@@ -1,6 +1,6 @@
 'use client'
 export const dynamic = 'force-dynamic'
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, useRef, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -392,18 +392,79 @@ function LiveScreen({ session }: { session: SessionData }) {
   const currentStage = STAGES[stageIndex]
   const isLast = stageIndex === STAGES.length - 1
   const firstName = session.prospect_name.split(' ')[0]
+  const callRef = useRef<any>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  // Load Daily call client so we can send live events to the rep
+  useEffect(() => {
+    let mounted = true
+
+    async function loadDaily() {
+      const DailyIframe = (await import('@daily-co/daily-js')).default
+
+      const frame = DailyIframe.createFrame(containerRef.current!, {
+        iframeStyle: { width: '100%', height: '100%', border: '0' },
+        showLeaveButton: false,
+        showFullscreenButton: false,
+      })
+
+      callRef.current = frame
+
+      frame.on('loaded', () => { if (mounted) setIframeLoaded(true) })
+      frame.on('joined-meeting', () => { if (mounted) setIframeLoaded(true) })
+
+      await frame.join({ url: session.conversation_url })
+    }
+
+    loadDaily()
+
+    return () => {
+      mounted = false
+      if (callRef.current) {
+        callRef.current.leave()
+        callRef.current.destroy()
+      }
+    }
+  }, [session.conversation_url])
+
+  function sendStageUpdate(stage: Stage) {
+    if (!callRef.current || !stage.repCue) return
+    const interaction = {
+      message_type: 'conversation',
+      event_type: 'conversation.echo',
+      properties: {
+        modality: 'text',
+        text: stage.repCue,
+        done: true,
+      },
+    }
+    try {
+      callRef.current.sendAppMessage(interaction, '*')
+    } catch (err) {
+      console.error('Failed to send stage update to rep:', err)
+    }
+  }
+
+  function advance() {
+    if (isLast) return
+    const nextIndex = stageIndex + 1
+    const nextStage = STAGES[nextIndex]
+    setStageIndex(nextIndex)
+    sendStageUpdate(nextStage)
+  }
 
   // Auto-advance through Stage 1 — verbal setup only, no product shown
   useEffect(() => {
     if (currentStage.key === 'context') {
-      const timer = setTimeout(() => setStageIndex(i => i + 1), 4000)
+      const timer = setTimeout(() => {
+        const nextIndex = stageIndex + 1
+        const nextStage = STAGES[nextIndex]
+        setStageIndex(nextIndex)
+        sendStageUpdate(nextStage)
+      }, 4000)
       return () => clearTimeout(timer)
     }
   }, [currentStage.key])
-
-  function advance() {
-    if (!isLast) setStageIndex(i => i + 1)
-  }
 
   return (
     <div style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', background: 'var(--ink)', fontFamily: 'var(--sans)' }}>
@@ -446,12 +507,9 @@ function LiveScreen({ session }: { session: SessionData }) {
               <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
           )}
-          <iframe
-            src={session.conversation_url}
-            allow="camera; microphone; autoplay; display-capture"
-            onLoad={() => setIframeLoaded(true)}
-            style={{ width: '100%', height: '100%', border: 'none', opacity: iframeLoaded ? 1 : 0, transition: 'opacity 0.4s ease' }}
-            title="Oviq Demo Rep"
+          <div
+            ref={containerRef}
+            style={{ width: '100%', height: '100%', opacity: iframeLoaded ? 1 : 0, transition: 'opacity 0.4s ease' }}
           />
         </div>
 
