@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
+export const dynamic = 'force-dynamic'
+
 function buildOpeningContext(session: {
   prospect_name: string; brokerage_name: string | null
   loads_per_month: number | null; tms_platform: string | null; biggest_pain: string | null
@@ -54,6 +56,7 @@ async function createTavusConversation(session: {
   const context = buildOpeningContext(session)
   const res = await fetch('https://tavusapi.com/v2/conversations', {
     method: 'POST',
+    cache: 'no-store',
     headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.TAVUS_API_KEY! },
     body: JSON.stringify({
       replica_id:             process.env.TAVUS_REPLICA_ID!,
