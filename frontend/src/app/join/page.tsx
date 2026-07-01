@@ -442,25 +442,39 @@ function LiveScreen({ session }: { session: SessionData }) {
   }, [session.conversation_url])
 
   function sendStageUpdate(stage: Stage) {
-    if (!callRef.current || !stage.repCue) return
-    const interaction = {
-      message_type: 'conversation',
-      event_type: 'conversation.echo',
-      properties: {
-        modality: 'text',
-        text: stage.repCue,
-        done: true,
-      },
-    }
+    if (!callRef.current) return
     try {
-      callRef.current.sendAppMessage(interaction, '*')
+      // First interrupt whatever the rep is currently saying
+      callRef.current.sendAppMessage({
+        message_type: 'conversation',
+        event_type: 'conversation.interrupt',
+      }, '*')
+
+      // Then send the stage context as a user action the rep responds to
+      if (stage.repCue) {
+        setTimeout(() => {
+          callRef.current?.sendAppMessage({
+            message_type: 'conversation',
+            event_type: 'conversation.respond',
+            properties: {
+              text: `The prospect just clicked Next and is now looking at the ${stage.label} screen. ${stage.repCue}`,
+            },
+          }, '*')
+        }, 300)
+      }
     } catch (err) {
       console.error('Failed to send stage update to rep:', err)
     }
   }
 
+  const advancingRef = useRef(false)
+
   function advance() {
     if (isLast) return
+    if (advancingRef.current) return  // debounce — ignore rapid clicks
+    advancingRef.current = true
+    setTimeout(() => { advancingRef.current = false }, 3000)
+
     const nextIndex = stageIndex + 1
     const nextStage = STAGES[nextIndex]
     setStageIndex(nextIndex)
