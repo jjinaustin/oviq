@@ -67,7 +67,7 @@ async function createTavusConversation(session: {
       test_mode:    process.env.TAVUS_TEST_MODE === 'true',
     properties: {
     max_call_duration: 900, enable_recording: true,
-    participant_absent_timeout: 300, participant_left_timeout: 120,
+    participant_absent_timeout: 600, participant_left_timeout: 120,
     },
     }),
   })

@@ -413,6 +413,20 @@ function LiveScreen({ session }: { session: SessionData }) {
       frame.on('loaded', () => { if (mounted) setIframeLoaded(true) })
       frame.on('joined-meeting', () => { if (mounted) setIframeLoaded(true) })
 
+      // Run a quick network check (max 10s) before joining
+      try {
+        const testObj = DailyIframe.createCallObject()
+        const qualityPromise = testObj.testCallQuality()
+        const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ result: 'timeout' }), 10000))
+        const quality = await Promise.race([qualityPromise, timeoutPromise]) as any
+        testObj.destroy()
+        if (quality.result === 'bad') {
+          console.warn('Poor network detected — joining anyway')
+        }
+      } catch (e) {
+        console.warn('Network check error, proceeding:', e)
+      }
+
       await frame.join({ url: session.conversation_url })
     }
 
