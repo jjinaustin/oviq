@@ -212,7 +212,7 @@ function WaitingScreen({ session, onJoin }: { session: SessionData; onJoin: () =
             Hi {firstName}, your demo<br />starts soon.
           </h1>
           <p style={{ fontSize: 15, color: 'var(--body)', lineHeight: 1.65, marginBottom: 32 }}>
-            You're booked for a 30-minute Oviq demo{session.brokerage_name ? ` for ${session.brokerage_name}` : ''}.
+            You're booked for a 15-minute Oviq demo{session.brokerage_name ? ` for ${session.brokerage_name}` : ''}.
           </p>
           {countdown && !countdown.past && (
             <div style={{ display: 'inline-flex', gap: 8, background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 16, padding: '20px 32px', marginBottom: 32 }}>
@@ -247,7 +247,7 @@ function WaitingScreen({ session, onJoin }: { session: SessionData; onJoin: () =
           <div style={{ background: 'var(--paper)', border: '1px solid var(--line)', borderRadius: 14, padding: '20px 24px', textAlign: 'left' }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--faint)', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 14 }}>What to expect</div>
             {[
-              { icon: '🎥', text: 'A 30-minute video demo — no slides, just the live product.' },
+              { icon: '🎥', text: 'A 15-minute video demo — no slides, just the live product.' },
               { icon: '🎙️', text: 'Make sure your microphone is enabled when you join.' },
               { icon: '👆', text: 'You\'ll advance through the demo at your own pace using a Next button.' },
             ].map((item, i) => (
