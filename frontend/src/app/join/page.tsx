@@ -442,26 +442,25 @@ function LiveScreen({ session }: { session: SessionData }) {
   }, [session.conversation_url])
 
   function sendStageUpdate(stage: Stage) {
-    if (!callRef.current) return
+    if (!callRef.current || !stage.repCue) return
     try {
-      // First interrupt whatever the rep is currently saying
+      // Interrupt the rep first, then echo the next line
       callRef.current.sendAppMessage({
         message_type: 'conversation',
         event_type: 'conversation.interrupt',
       }, '*')
 
-      // Then send the stage context as a user action the rep responds to
-      if (stage.repCue) {
-        setTimeout(() => {
-          callRef.current?.sendAppMessage({
-            message_type: 'conversation',
-            event_type: 'conversation.respond',
-            properties: {
-              text: `The prospect just clicked Next and is now looking at the ${stage.label} screen. ${stage.repCue}`,
-            },
-          }, '*')
-        }, 300)
-      }
+      setTimeout(() => {
+        callRef.current?.sendAppMessage({
+          message_type: 'conversation',
+          event_type: 'conversation.echo',
+          properties: {
+            modality: 'text',
+            text: stage.repCue,
+            done: true,
+          },
+        }, '*')
+      }, 400)
     } catch (err) {
       console.error('Failed to send stage update to rep:', err)
     }
