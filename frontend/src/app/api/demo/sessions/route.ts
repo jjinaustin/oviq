@@ -64,7 +64,7 @@ async function createTavusConversation(sessionData: {
       properties: {
         max_call_duration:          900,
         enable_recording:           true,
-        participant_absent_timeout: 600,
+        participant_absent_timeout: 86400,
         participant_left_timeout:   120,
       },
     }),
