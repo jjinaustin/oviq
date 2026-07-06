@@ -487,25 +487,19 @@ function LiveScreen({ session }: { session: SessionData }) {
 
   function advance() {
     if (isLast) return
-    if (advancingRef.current) return  // debounce — ignore rapid clicks
+    if (advancingRef.current) return
     advancingRef.current = true
     setTimeout(() => { advancingRef.current = false }, 3000)
-
-    const nextIndex = stageIndex + 1
-    const nextStage = STAGES[nextIndex]
-    setStageIndex(nextIndex)
-    sendStageUpdate(nextStage)
+    setStageIndex(i => i + 1)
   }
 
-  // Auto-advance through Stage 1 — verbal setup only, no product shown
+  // When stage changes, send the current stage repCue to the rep
+  // This ensures the rep always talks about what is currently on screen
   useEffect(() => {
-    if (currentStage.key === 'context') {
+    if (currentStage.repCue) {
       const timer = setTimeout(() => {
-        const nextIndex = stageIndex + 1
-        const nextStage = STAGES[nextIndex]
-        setStageIndex(nextIndex)
-        sendStageUpdate(nextStage)
-      }, 4000)
+        sendStageUpdate(currentStage)
+      }, 600)
       return () => clearTimeout(timer)
     }
   }, [currentStage.key])
