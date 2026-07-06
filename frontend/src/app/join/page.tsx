@@ -48,13 +48,13 @@ const STAGES: Stage[] = [
     key:    'cases',
     label:  'Cases',
     url:    '/cases',
-    repCue: 'Every exception is a Case. You can see all of them at once — red means it needs your attention, teal means Oviq is actively handling it. Your team never has to dig through the TMS to find problems. Let me show you what is happening inside one of these cases right now. Click Next.',
+    repCue: 'Every exception is a Case. You can see all of them at once — red means it needs your attention, teal means Oviq is actively handling it. Your team never has to dig through the TMS to find problems. Go ahead and click Next and I will show you exactly what is happening inside one of these cases.',
   },
   {
     key:    'case_detail',
     label:  'Case Detail',
     url:    '/cases',
-    repCue: 'This shipment was scheduled to pick up this morning. Oviq detected no confirmation and opened this case automatically. Scroll down to the timeline on your screen and take a moment to read it.',
+    repCue: 'Click on the first case in the list on your screen to open it. Once it opens, scroll down to the timeline and take a moment to read through it.',
   },
   {
     key:    'communications',
@@ -261,6 +261,18 @@ function ProductPanel({ stage, prospectName }: { stage: Stage; prospectName: str
       </div>
     )
   }
+  if (stage.key === 'case_detail') {
+    return (
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ padding: '10px 16px', background: 'var(--teal)', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          <svg viewBox="0 0 24 24" fill="none" strokeWidth="2.5" strokeLinecap="round" style={{ width: 16, height: 16, stroke: '#fff', flexShrink: 0 }}><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>Click on the first case in the list to open it, then scroll down to the timeline.</span>
+        </div>
+        <iframe key={stage.key} src={`${appBase}${stage.url}`} style={{ flex: 1, border: 'none', width: '100%' }} title={`Oviq — ${stage.label}`} />
+      </div>
+    )
+  }
+
   if (!stage.url || stage.key === 'discovery') {
     return (
       <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--paper)', padding: 40 }}>
