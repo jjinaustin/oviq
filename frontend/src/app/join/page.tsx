@@ -289,13 +289,6 @@ function LiveScreen({ session }: { session: SessionData }) {
     let mounted = true
     async function loadDaily() {
       const DailyIframe = (await import('@daily-co/daily-js')).default
-      try {
-        const testObj = DailyIframe.createCallObject()
-        const qualityPromise = testObj.testCallQuality()
-        const timeoutPromise = new Promise(resolve => setTimeout(() => resolve({ result: 'timeout' }), 10000))
-        await Promise.race([qualityPromise, timeoutPromise])
-        testObj.destroy()
-      } catch (e) { console.warn('Network check:', e) }
 
       const frame = DailyIframe.createFrame(containerRef.current!, {
         iframeStyle: { width: '100%', height: '100%', border: '0' },
