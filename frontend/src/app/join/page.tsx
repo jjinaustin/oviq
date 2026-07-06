@@ -329,8 +329,9 @@ function LiveScreen({ session }: { session: SessionData }) {
   }
 
   // Send repCue when stage changes — always describes current screen
+  // Skip Discovery (stage 0) — let the rep greet naturally
   useEffect(() => {
-    if (currentStage.repCue) {
+    if (currentStage.repCue && currentStage.key !== 'discovery') {
       const timer = setTimeout(() => sendStageUpdate(currentStage), 800)
       return () => clearTimeout(timer)
     }
