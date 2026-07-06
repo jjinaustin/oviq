@@ -188,12 +188,29 @@ function ErrorScreen({ message }: { message: string }) {
 
 // ─── Waiting screen ───────────────────────────────────────────────────────────
 
-function WaitingScreen({ session, onJoin }: { session: SessionData; onJoin: () => void }) {
+function WaitingScreen({ session, onJoin, sessionToken }: { session: SessionData; onJoin: () => void; sessionToken: string }) {
   const countdown = useCountdown(session.scheduled_at)
   const firstName = session.prospect_name.split(' ')[0]
   const pad = (n: number) => String(n).padStart(2, '0')
 
   useEffect(() => { if (countdown?.past) onJoin() }, [countdown?.past])
+
+  // Poll every 30 seconds — when server creates the Tavus room
+  // (within 5 min of scheduled time) this will pick it up automatically
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/demo/sessions/${sessionToken}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.conversation_url) {
+            onJoin()
+          }
+        }
+      } catch {}
+    }, 30000)
+    return () => clearInterval(interval)
+  }, [sessionToken])
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--bone)', fontFamily: 'var(--sans)' }}>
