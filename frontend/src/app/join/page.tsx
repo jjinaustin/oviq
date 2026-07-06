@@ -644,7 +644,7 @@ function JoinPageInner() {
 
   if (pageState === 'loading') return <LoadingScreen />
   if (pageState === 'error')   return <ErrorScreen message={errorMsg} />
-  if (pageState === 'waiting' && session) return <WaitingScreen session={session} onJoin={() => setPageState('live')} />
+  if (pageState === 'waiting' && session) return <WaitingScreen session={session} onJoin={() => setPageState('live')} sessionToken={sessionToken || ''} />
   if (pageState === 'live' && session)    return <LiveScreen session={session} />
   return <LoadingScreen />
 }
