@@ -18,7 +18,7 @@ const CUE_DELAY_MS = 1500
 
 export default function SyncTester() {
   const [stageIndex, setStageIndex] = useState(0)
-  const [log, setLog] = useState([])
+  const [log, setLog] = useState<{time: string; type: string; text: string}[]>([])
   const [cueCountdown, setCueCountdown] = useState(null)
   const advancingRef = useRef(false)
   const timerRef = useRef(null)
