@@ -30,13 +30,13 @@ const STAGES = [
   },
   {
     key: 'communications',
-    label: 'Communications',
+    url: '/cases/LOAD-4822',
     url: '/cases',
     repCue: 'This is the actual email Oviq sent — professional, specific, references the load number and route. It comes from your branded address so the carrier thinks they are talking to your team. When the carrier responds it comes straight back here. Click Next to see what happens when the carrier goes dark.',
   },
   {
     key: 'escalation',
-    label: 'Escalation',
+    url: '/cases/LOAD-4822',
     url: '/cases',
     repCue: 'This is important. Oviq does not try to handle everything. When the carrier goes dark after two hours it escalates immediately with everything already loaded. Your team only sees what actually needs them. Click Next.',
   },

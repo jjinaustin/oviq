@@ -54,18 +54,18 @@ const STAGES: Stage[] = [
     key:    'case_detail',
     label:  'Case Detail',
     url:    '/cases',
-    repCue: 'Click on the first case in the list on your screen to open it. Once it opens, scroll down to the timeline and take a moment to read through it.',
+    repCue: 'Click on the first case in the list on your screen to open it. Once it opens, scroll down to the timeline and take a moment to read through it. When you are finished reviewing the timeline, click Next.',
   },
   {
     key:    'communications',
     label:  'Communications',
-    url:    '/cases',
+    url:    '/cases/LOAD-4822',
     repCue: 'This is the actual email Oviq sent — professional, specific, references the load number and route. It comes from your branded address so the carrier thinks they are talking to your team. When the carrier responds it comes straight back here. Click Next to see what happens when the carrier goes dark.',
   },
   {
     key:    'escalation',
     label:  'Escalation',
-    url:    '/cases',
+    url:    '/cases/LOAD-4822',
     repCue: 'This is important. Oviq does not try to handle everything. When the carrier goes dark after two hours it escalates immediately with everything already loaded. Your team only sees what actually needs them. Click Next.',
   },
   {
