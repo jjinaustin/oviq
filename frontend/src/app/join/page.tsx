@@ -251,12 +251,53 @@ function ProductPanel({ stage, prospectName }: { stage: Stage; prospectName: str
   const appBase = process.env.NEXT_PUBLIC_APP_URL || 'https://app.oviq.io'
   if (stage.key === 'close') return <ClosePanel prospectName={prospectName} />
   if (stage.key === 'math') {
+    const rows = [
+      [300, 0.10, 20, 299],
+      [500, 0.10, 20, 299],
+      [1000, 0.12, 20, 799],
+      [2000, 0.12, 20, 799],
+      [5000, 0.15, 25, 1999],
+    ]
     return (
-      <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--paper)', padding: 40 }}>
-        <div style={{ textAlign: 'center', maxWidth: 360 }}>
-          <OviqGlyph size={40} />
-          <h3 style={{ fontSize: 20, fontWeight: 700, color: 'var(--ink)', marginTop: 20, marginBottom: 12, letterSpacing: '-0.02em' }}>The math on your operation</h3>
-          <p style={{ fontSize: 14, color: 'var(--body)', lineHeight: 1.65 }}>Your demo rep is walking through the ROI calculation now.</p>
+      <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--paper)', padding: 40, overflowY: 'auto' }}>
+        <div style={{ maxWidth: 540, width: '100%' }}>
+          <OviqGlyph size={32} />
+          <h3 style={{ fontSize: 22, fontWeight: 800, color: 'var(--ink)', marginTop: 16, marginBottom: 4, letterSpacing: '-0.03em' }}>The math on your operation</h3>
+          <p style={{ fontSize: 13, color: 'var(--body)', marginBottom: 24 }}>Your demo rep is walking through this calculation now.</p>
+          <div style={{ border: '1px solid var(--line)', borderRadius: 12, overflow: 'hidden', marginBottom: 20 }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <thead>
+                <tr style={{ background: 'var(--sand)' }}>
+                  {['Loads/mo', 'Exceptions', 'Hours', 'Oviq saves', 'Plan', 'Net savings/mo'].map(h => (
+                    <th key={h} style={{ padding: '10px 12px', textAlign: 'left', fontWeight: 600, color: 'var(--body)', fontSize: 11, fontFamily: 'var(--sans)' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map(([loads, rate, mins, plan], i) => {
+                  const exceptions = Math.round((loads as number) * (rate as number))
+                  const hours = Math.round(exceptions * ((mins as number) / 60))
+                  const saved = Math.round(hours * 0.8)
+                  const labor = Math.round(saved * 50)
+                  const net = labor - (plan as number)
+                  return (
+                    <tr key={i} style={{ borderTop: '1px solid var(--line)', background: i % 2 === 0 ? 'var(--paper)' : 'var(--bone)' }}>
+                      <td style={{ padding: '9px 12px', color: 'var(--ink)', fontWeight: 600, fontFamily: 'var(--mono)' }}>{(loads as number).toLocaleString()}</td>
+                      <td style={{ padding: '9px 12px', color: 'var(--body)' }}>{exceptions}</td>
+                      <td style={{ padding: '9px 12px', color: 'var(--body)' }}>{hours} hrs</td>
+                      <td style={{ padding: '9px 12px', color: 'var(--body)' }}>{saved} hrs</td>
+                      <td style={{ padding: '9px 12px', color: 'var(--body)' }}>${(plan as number).toLocaleString()}</td>
+                      <td style={{ padding: '9px 12px', color: 'var(--teal)', fontWeight: 700, fontFamily: 'var(--mono)' }}>${net.toLocaleString()}</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+          <div style={{ background: 'var(--ink)', borderRadius: 12, padding: '16px 20px' }}>
+            <p style={{ fontSize: 12, color: 'rgba(247,245,239,0.5)', margin: '0 0 4px' }}>At $50/hr fully loaded · Oviq handles 80% of exceptions automatically</p>
+            <p style={{ fontSize: 13, color: 'var(--bone)', margin: 0, fontWeight: 600 }}>One retained customer account pays for a full year of Oviq.</p>
+          </div>
         </div>
       </div>
     )
