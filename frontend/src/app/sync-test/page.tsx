@@ -79,7 +79,7 @@ export default function SyncTester() {
     }
   }, [currentStage.key])
 
-  const logColors = { click: '#D4A042', stage: '#6B7280', rep: '#0E8E7C', system: '#9C968A' }
+  const logColors: Record<string, string> = { click: '#D4A042', stage: '#6B7280', rep: '#0E8E7C', system: '#9C968A' }
 
   function renderProduct() {
     switch(currentStage.key) {
