@@ -28,7 +28,7 @@ export default function SyncTester() {
   const currentStage = STAGES[stageIndex]
   const isLast = stageIndex === STAGES.length - 1
 
-  function addLog(type, text) {
+  function addLog(type: string, text: string) {
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
     setLog(prev => [...prev, { time, type, text }])
     setTimeout(() => logEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
