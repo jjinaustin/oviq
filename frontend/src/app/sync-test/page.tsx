@@ -23,7 +23,7 @@ export default function SyncTester() {
   const advancingRef = useRef(false)
   const timerRef = useRef(null)
   const countdownRef = useRef(null)
-  const logEndRef = useRef(null)
+  const logEndRef = useRef<HTMLDivElement>(null)
 
   const currentStage = STAGES[stageIndex]
   const isLast = stageIndex === STAGES.length - 1
