@@ -59,14 +59,14 @@ const STAGES: Stage[] = [
   {
     key:    'communications',
     label:  'Communications',
-    url:    '/cases/c45fd008-3921-4d1b-b22c-9e38d61661be',
-    repCue: 'This is the actual email Oviq sent — professional, specific, references the load number and route. It comes from your branded address so the carrier thinks they are talking to your team. When the carrier responds it comes straight back here. Click Next to see what happens when the carrier goes dark.',
+    url:    '/cases/fb02999a-5c78-4759-b12c-8d2191e2bcbb',
+    repCue: 'Scroll down on the screen to the Communications section. You can see the automated email Oviq sent to the carrier — professional, specific, references the load number. Below it is the carrier reply coming straight back into the case. Your team never had to touch their inbox. Click Next.',
   },
   {
     key:    'escalation',
     label:  'Escalation',
-    url:    '/cases/c45fd008-3921-4d1b-b22c-9e38d61661be',
-    repCue: 'This is important. Oviq does not try to handle everything. When the carrier goes dark after two hours it escalates immediately with everything already loaded. Your team only sees what actually needs them. Click Next.',
+    url:    '/cases/fb02999a-5c78-4759-b12c-8d2191e2bcbb',
+    repCue: 'Look at the Timeline on your screen. The last entry says Escalated to human — no carrier response after 2 hours. Oviq handled everything up to that point automatically, then handed off at exactly the right moment. Your team only sees what actually needs them. Click Next.',
   },
   {
     key:    'ingest',

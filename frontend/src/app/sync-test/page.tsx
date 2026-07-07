@@ -6,8 +6,8 @@ const STAGES = [
   { key: 'dashboard', label: 'Dashboard', url: '/dashboard', repCue: 'Take a look at the screen on your right. This is what your ops manager sees every morning instead of digging through the TMS. Those three cards — Needs Judgment, Auto-resolving, and Handled Today. Right now 3 exceptions are being handled automatically. Your team has not touched any of them. When you are ready, click Next.' },
   { key: 'cases', label: 'Cases', url: '/cases', repCue: 'Every exception is a Case. You can see all of them at once — red means it needs your attention, teal means Oviq is actively handling it. Your team never has to dig through the TMS to find problems. Go ahead and click Next and I will show you exactly what is happening inside one of these cases.' },
   { key: 'case_detail', label: 'Case Detail', url: '/cases', repCue: 'Click on the first case in the list on your screen to open it. Once it opens, scroll down to the timeline and take a moment to read through it. When you are finished reviewing the timeline, click Next.' },
-  { key: 'communications', label: 'Communications', url: '/cases/c45fd008-3921-4d1b-b22c-9e38d61661be', repCue: 'This is the actual email Oviq sent — professional, specific, references the load number and route. It comes from your branded address so the carrier thinks they are talking to your team. When the carrier responds it comes straight back here. Click Next to see what happens when the carrier goes dark.' },
-  { key: 'escalation', label: 'Escalation', url: '/cases/c45fd008-3921-4d1b-b22c-9e38d61661be', repCue: 'This is important. Oviq does not try to handle everything. When the carrier goes dark after two hours it escalates immediately with everything already loaded. Your team only sees what actually needs them. Click Next.' },
+  { key: 'communications', label: 'Communications', url: '/cases/fb02999a-5c78-4759-b12c-8d2191e2bcbb', repCue: 'This is the actual email Oviq sent — professional, specific, references the load number and route. It comes from your branded address so the carrier thinks they are talking to your team. When the carrier responds it comes straight back here. Click Next to see what happens when the carrier goes dark.' },
+  { key: 'escalation', label: 'Escalation', url: '/cases/fb02999a-5c78-4759-b12c-8d2191e2bcbb', repCue: 'This is important. Oviq does not try to handle everything. When the carrier goes dark after two hours it escalates immediately with everything already loaded. Your team only sees what actually needs them. Click Next.' },
   { key: 'ingest', label: 'Your Data', url: '/ingest', repCue: 'You can see the email address on the screen — copy that and send your TMS export there. Oviq will find your exceptions in under a minute. Click Next and I will show you what this means in real numbers.' },
   { key: 'math', label: 'The Math', url: null, repCue: 'Let me show you what this means for your operation specifically.' },
   { key: 'close', label: 'Next Steps', url: null, repCue: null },
@@ -106,18 +106,18 @@ export default function SyncTester() {
         return (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '10px 16px', background: '#0E8E7C', flexShrink: 0 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>📧 Review the Communications tab on this case — see the email Oviq sent and the carrier reply.</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>📧 Scroll down to the Communications section — see the automated carrier email Oviq sent and the carrier reply below it.</span>
             </div>
-            <iframe src={APP_BASE + '/cases/c45fd008-3921-4d1b-b22c-9e38d61661be'} style={{ flex: 1, border: 'none', width: '100%' }} title="Case Communications" />
+            <iframe src={APP_BASE + '/cases/fb02999a-5c78-4759-b12c-8d2191e2bcbb'} style={{ flex: 1, border: 'none', width: '100%' }} title="Case Communications" />
           </div>
         )
       case 'escalation':
         return (
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '10px 16px', background: '#1A1813', flexShrink: 0 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>⚡ Review the Timeline tab — see the escalation event at the bottom.</span>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>⚡ Look at the Timeline above — the last entry shows "Escalated to human: No carrier response after 2 hours". This is Oviq knowing when to hand off.</span>
             </div>
-            <iframe src={APP_BASE + '/cases/c45fd008-3921-4d1b-b22c-9e38d61661be'} style={{ flex: 1, border: 'none', width: '100%' }} title="Case Escalation" />
+            <iframe src={APP_BASE + '/cases/fb02999a-5c78-4759-b12c-8d2191e2bcbb'} style={{ flex: 1, border: 'none', width: '100%' }} title="Case Escalation" />
           </div>
         )
       case 'math':
