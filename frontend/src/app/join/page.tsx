@@ -79,7 +79,7 @@ const STAGES: Stage[] = [
     key:    'math',
     label:  'The Math',
     url:    null,
-    repCue: 'Let me show you what this means for your operation specifically.',
+    repCue: 'Let me show you what this means for your operation specifically. When you are ready to see your options, click Next.',
   },
   {
     key:    'close',
@@ -397,7 +397,7 @@ function LiveScreen({ session }: { session: SessionData }) {
       const saved = Math.round(hours * 0.8)
       const labor = Math.round(saved * 50)
       const net = labor - plan
-      const mathCue = `Here is the math on your operation. You are moving about ${loads.toLocaleString()} loads a month. At a ${Math.round(rate*100)}% exception rate that is ${exceptions} exceptions. At ${mins} minutes each that is ${hours} hours a month on follow up. Oviq handles 80% of those automatically — that saves you ${saved} hours. At 50 dollars an hour fully loaded that is ${labor.toLocaleString()} dollars in labor savings, minus the plan cost of ${plan} dollars — that is roughly ${net.toLocaleString()} dollars back in your pocket every month. Take a look at your row on the screen. Does that math feel roughly right for your operation?`
+      const mathCue = `Here is the math on your operation. You are moving about ${loads.toLocaleString()} loads a month. At a ${Math.round(rate*100)}% exception rate that is ${exceptions} exceptions. At ${mins} minutes each that is ${hours} hours a month on follow up. Oviq handles 80% of those automatically — that saves you ${saved} hours. At 50 dollars an hour fully loaded that is ${labor.toLocaleString()} dollars in labor savings, minus the plan cost of ${plan} dollars — that is roughly ${net.toLocaleString()} dollars back in your pocket every month. Take a look at your row on the screen. Does that math feel roughly right for your operation? Based on your volume you qualify for our Growth plan at 799 dollars a month. When you are ready to see your options, click Next on your screen.`
       const timer = setTimeout(() => {
         if (!callRef.current) return
         try {
