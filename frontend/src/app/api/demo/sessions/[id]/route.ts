@@ -92,7 +92,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({
       prospect_name: session.prospect_name, brokerage_name: session.brokerage_name,
       scheduled_at: session.scheduled_at, conversation_url: session.conversation_url,
-      status: session.status,
+      status: session.status, loads_per_month: session.loads_per_month,
     })
   }
 
@@ -113,6 +113,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   return NextResponse.json({
     prospect_name: session.prospect_name, brokerage_name: session.brokerage_name,
     scheduled_at: session.scheduled_at, conversation_url: tavus.conversation_url,
-    status: 'active',
+    status: 'active', loads_per_month: session.loads_per_month,
   })
 }
