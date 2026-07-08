@@ -22,6 +22,7 @@ interface SessionData {
   scheduled_at:     string
   conversation_url: string | null
   status:           string
+  loads_per_month:  number | null
 }
 
 interface Stage {
@@ -384,7 +385,35 @@ function LiveScreen({ session }: { session: SessionData }) {
   // Send repCue when stage changes — always describes current screen
   // Skip Discovery (stage 0) — let the rep greet naturally
   useEffect(() => {
-    if (currentStage.repCue && currentStage.key !== 'discovery') {
+    if (currentStage.key === 'discovery') return
+
+    if (currentStage.key === 'math' && session.loads_per_month) {
+      const loads = session.loads_per_month
+      const rate = loads < 300 ? 0.08 : loads < 500 ? 0.10 : loads < 5000 ? 0.12 : 0.15
+      const mins = loads < 5000 ? 20 : 25
+      const plan = loads < 500 ? 299 : loads < 5000 ? 799 : 1999
+      const exceptions = Math.round(loads * rate)
+      const hours = Math.round(exceptions * (mins / 60))
+      const saved = Math.round(hours * 0.8)
+      const labor = Math.round(saved * 50)
+      const net = labor - plan
+      const mathCue = `Here is the math on your operation. You are moving about ${loads.toLocaleString()} loads a month. At a ${Math.round(rate*100)}% exception rate that is ${exceptions} exceptions. At ${mins} minutes each that is ${hours} hours a month on follow up. Oviq handles 80% of those automatically — that saves you ${saved} hours. At 50 dollars an hour fully loaded that is ${labor.toLocaleString()} dollars in labor savings, minus the plan cost of ${plan} dollars — that is roughly ${net.toLocaleString()} dollars back in your pocket every month. Take a look at your row on the screen. Does that math feel roughly right for your operation?`
+      const timer = setTimeout(() => {
+        if (!callRef.current) return
+        try {
+          callRef.current.sendAppMessage({ message_type: 'conversation', event_type: 'conversation.interrupt' }, '*')
+          setTimeout(() => {
+            callRef.current?.sendAppMessage({
+              message_type: 'conversation', event_type: 'conversation.echo',
+              properties: { modality: 'text', text: mathCue, done: true },
+            }, '*')
+          }, 400)
+        } catch(e) { console.error(e) }
+      }, 1500)
+      return () => clearTimeout(timer)
+    }
+
+    if (currentStage.repCue) {
       const timer = setTimeout(() => sendStageUpdate(currentStage), 800)
       return () => clearTimeout(timer)
     }
